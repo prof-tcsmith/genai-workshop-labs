@@ -20,7 +20,7 @@ import json
 import streamlit as st
 
 from shared import store
-from shared.core import boot, chat, layer_badge
+from shared.core import boot, chat, layer_badge, stream_assistant, tool_calls_to_message
 
 client = boot("Level 5 · A2A + governance")
 
@@ -129,8 +129,8 @@ RESEARCH_TOOLS = [
 ]
 
 
-def run_research(order_id: str) -> str:
-    """RESEARCH agent: a tool-using chat loop (read tools only), capped at 5 steps."""
+def run_research(order_id: str, placeholder=None) -> str:
+    """RESEARCH agent: a read-only tool loop (capped). Streams its final findings."""
     messages = [
         {"role": "system", "content":
             "You are the READ-ONLY Research Agent for refunds. Use get_order to fetch "
@@ -139,19 +139,21 @@ def run_research(order_id: str) -> str:
             "and whether any approval threshold applies. Do not decide — just gather facts."},
         {"role": "user", "content": f"Gather the facts needed to handle a refund for order {order_id}."},
     ]
-    for _ in range(5):  # cap the loop
-        m = chat(client, messages, tools=RESEARCH_TOOLS).choices[0].message
-        if not m.tool_calls:
-            return m.content or "(no findings)"
-        # Append the assistant turn carrying its tool_calls, then resolve each call.
-        messages.append({"role": "assistant", "content": m.content or "",
-                         "tool_calls": [tc.model_dump() for tc in m.tool_calls]})
-        for tc in m.tool_calls:
-            args = json.loads(tc.function.arguments or "{}")
-            result, _blocked = call_tool("research", tc.function.name, args)
-            messages.append({"role": "tool", "tool_call_id": tc.id,
-                             "content": json.dumps(result)})
-    return "(research did not converge within step cap)"
+    for _ in range(5):  # cap the tool loop
+        content, calls = stream_assistant(client, messages, tools=RESEARCH_TOOLS, placeholder=None)
+        if not calls:
+            break
+        messages.append(tool_calls_to_message(content, calls))
+        for c in calls:
+            try:
+                args = json.loads(c["args"] or "{}")
+            except json.JSONDecodeError:
+                args = {}
+            result, _blocked = call_tool("research", c["name"], args)
+            messages.append({"role": "tool", "tool_call_id": c["id"], "content": json.dumps(result)})
+    # Stream the final findings (no tools attached) into the placeholder.
+    findings, _ = stream_assistant(client, messages, placeholder=placeholder)
+    return findings or "(no findings)"
 
 
 def run_orchestrator(order_id: str, findings: str) -> dict:
@@ -189,8 +191,8 @@ if st.button("Run workflow", type="primary"):
 
     # Orchestrator delegates fact-finding to the Research agent.
     a2a("Orchestrator", "Research", f"Gather facts for order {order_id}.")
-    with st.spinner("Research agent gathering facts (read tools only)…"):
-        findings = run_research(order_id)
+    st.markdown("**Research agent — gathering facts (streaming):**")
+    findings = run_research(order_id, placeholder=st.empty())
     a2a("Research", "Orchestrator", findings)
 
     # Orchestrator makes the policy decision.

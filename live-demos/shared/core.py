@@ -118,3 +118,61 @@ def chat(client, messages, tools=None, tool_choice=None, model: str | None = Non
         return client.chat.completions.create(**kw)
     except Exception as e:
         openai_guard(e)
+
+
+def stream_assistant(client, messages, *, tools=None, tool_choice=None, model: str | None = None,
+                     max_tokens: int = MAX_TOKENS, temperature: float = 0.3, placeholder=None):
+    """Stream a chat completion, rendering text live into `placeholder` (an st.empty()).
+
+    Returns (content_text, tool_calls) where tool_calls is a list of
+    {"id","name","args"} dicts. Works for plain answers and for tool-using steps
+    (tool-call deltas are accumulated; little/no text streams on those steps).
+    """
+    _bump()
+    kw = dict(model=model or CHAT_MODEL, messages=messages, max_tokens=max_tokens,
+              temperature=temperature, stream=True)
+    if tools:
+        kw["tools"] = tools
+    if tool_choice:
+        kw["tool_choice"] = tool_choice
+    try:
+        stream = client.chat.completions.create(**kw)
+    except Exception as e:
+        openai_guard(e)
+        return "", []
+
+    content = ""
+    calls: dict[int, dict] = {}
+    for chunk in stream:
+        if not chunk.choices:
+            continue
+        delta = chunk.choices[0].delta
+        if getattr(delta, "content", None):
+            content += delta.content
+            if placeholder is not None:
+                placeholder.markdown(content + "▌")
+        if getattr(delta, "tool_calls", None):
+            for tc in delta.tool_calls:
+                slot = calls.setdefault(tc.index, {"id": "", "name": "", "args": ""})
+                if tc.id:
+                    slot["id"] = tc.id
+                if tc.function:
+                    if tc.function.name:
+                        slot["name"] += tc.function.name
+                    if tc.function.arguments:
+                        slot["args"] += tc.function.arguments
+    if placeholder is not None and content:
+        placeholder.markdown(content)  # drop the cursor
+    return content, [calls[i] for i in sorted(calls)]
+
+
+def tool_calls_to_message(content: str, calls: list[dict]) -> dict:
+    """Rebuild the OpenAI assistant message (with tool_calls) from stream_assistant output."""
+    return {
+        "role": "assistant",
+        "content": content or "",
+        "tool_calls": [
+            {"id": c["id"], "type": "function", "function": {"name": c["name"], "arguments": c["args"]}}
+            for c in calls
+        ],
+    }

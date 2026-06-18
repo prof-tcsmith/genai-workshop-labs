@@ -1,6 +1,6 @@
 import streamlit as st
 
-from shared.core import boot, chat, layer_badge
+from shared.core import boot, layer_badge, stream_assistant
 
 client = boot("Level 1 · Chatbot")
 
@@ -17,9 +17,8 @@ if st.button("Send", type="primary"):
     messages = [{"role": "system", "content": sys}, {"role": "user", "content": msg}]
     with st.expander("Exactly what is sent to the model"):
         st.json(messages)
-    ans = chat(client, messages).choices[0].message.content
     st.subheader("Response")
-    st.write(ans)
+    stream_assistant(client, messages, placeholder=st.empty())
     st.warning(
         "**No memory** — send another message and it won't recall this one. "
         "**No guardrails** — it will attempt whatever the prompt allows. "

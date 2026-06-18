@@ -8,7 +8,7 @@ the same model asked the same question with no retrieval at all.
 import streamlit as st
 
 from shared import store
-from shared.core import boot, chat, layer_badge
+from shared.core import boot, layer_badge, stream_assistant
 
 client = boot("Level 3 · Context engineering")
 
@@ -99,23 +99,20 @@ if run and question.strip():
         )
         st.json(grounded_messages)
 
-    # --- 5. Grounded, cited answer ---
-    grounded = chat(client, grounded_messages).choices[0].message.content
-
+    # --- 5. Grounded, cited answer (streamed) ---
     if show_ungrounded:
         # --- 6. Contrast: same question, NO retrieved context ---
         ungrounded_messages = [
             {"role": "system", "content": "You are a helpful support assistant."},
             {"role": "user", "content": question.strip()},
         ]
-        ungrounded = chat(client, ungrounded_messages).choices[0].message.content
         col_g, col_u = st.columns(2)
         with col_g:
             st.subheader("✅ Grounded (with retrieval)")
-            st.write(grounded)
+            stream_assistant(client, grounded_messages, placeholder=st.empty())
         with col_u:
             st.subheader("⚠️ Ungrounded (no retrieval)")
-            st.write(ungrounded)
+            stream_assistant(client, ungrounded_messages, placeholder=st.empty())
         st.caption(
             "Notice the difference: the grounded answer cites the source and uses the "
             "**enterprise-specific** policy; the ungrounded one tends to be vague, generic, "
@@ -123,7 +120,7 @@ if run and question.strip():
         )
     else:
         st.subheader("✅ Grounded answer")
-        st.write(grounded)
+        stream_assistant(client, grounded_messages, placeholder=st.empty())
         st.caption(
             "The answer is drawn from — and cites — the retrieved snippets above. "
             "Tick the box to see how the same model answers with no context."

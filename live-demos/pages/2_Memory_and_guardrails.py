@@ -10,7 +10,7 @@ Versus Level 1 (a bare chatbot) this page adds two visible things:
 """
 import streamlit as st
 
-from shared.core import boot, chat, layer_badge
+from shared.core import boot, chat, layer_badge, stream_assistant
 
 client = boot("Level 2 · Memory + guardrails")
 
@@ -31,6 +31,14 @@ SYSTEM_PROMPT = (
     "illegal, or harmful requests."
 )
 
+# --- The independent scope check (Layer 7): a SEPARATE model call, not the prompt.
+SCOPE_CHECK_PROMPT = (
+    "You are a scope classifier for a Northwind Cloud support bot. "
+    "Decide if the user message is about Northwind Cloud product "
+    "support (accounts, billing, features, troubleshooting) AND is "
+    "safe/benign. Answer with ONLY the single word 'yes' or 'no'."
+)
+
 # --- Controls -----------------------------------------------------------------
 guardrails_on = st.toggle(
     "Guardrails ON",
@@ -42,6 +50,23 @@ guardrails_on = st.toggle(
 if st.button("🧹 Clear conversation"):
     st.session_state["history"] = []
     st.rerun()
+
+# --- Show exactly WHAT the guardrails are -------------------------------------
+with st.expander("🛡️ The guardrails — what they actually are", expanded=True):
+    st.markdown(
+        "**Two layers, not one.** A guardrail is *partly* a rule written into the system "
+        "prompt — but that alone is **soft** (a clever message can talk the model out of it). "
+        "So this demo also adds an **independent check** that runs *before* the main model."
+    )
+    st.markdown("**Guardrail 1 — a rule in the system prompt** (an instruction the model is asked to follow):")
+    st.code(SYSTEM_PROMPT, language="text")
+    st.markdown("**Guardrail 2 — an independent scope check** (a *separate* model call that runs first and can block the message before the main model ever sees it):")
+    st.code(SCOPE_CHECK_PROMPT, language="text")
+    st.caption(
+        "Guardrail 1 is 'just a document in the prompt' — necessary but bypassable. Guardrail 2 is a "
+        "separate, fail-closed gate. Production systems layer both, plus input/output filters, tool "
+        "RBAC, and approval gates (see Level 5)."
+    )
 
 # Running conversation history lives here: a list of {"role", "content"}.
 # This IS the memory — Level 1 had none.
@@ -55,15 +80,7 @@ def in_scope(user_msg: str) -> bool:
     Asks the model a yes/no question and treats anything that isn't a clear
     'yes' as out of scope (fail-closed)."""
     check_messages = [
-        {
-            "role": "system",
-            "content": (
-                "You are a scope classifier for a Northwind Cloud support bot. "
-                "Decide if the user message is about Northwind Cloud product "
-                "support (accounts, billing, features, troubleshooting) AND is "
-                "safe/benign. Answer with ONLY the single word 'yes' or 'no'."
-            ),
-        },
+        {"role": "system", "content": SCOPE_CHECK_PROMPT},
         {"role": "user", "content": user_msg},
     ]
     # Tiny + deterministic: this check should be cheap and stable.
@@ -99,8 +116,7 @@ if prompt:
             # MEMORY in action: send the system prompt + the FULL history so the
             # answer can build on everything said earlier this session.
             messages = [{"role": "system", "content": SYSTEM_PROMPT}] + history
-            answer = chat(client, messages).choices[0].message.content
-            st.markdown(answer)
+            answer, _ = stream_assistant(client, messages, placeholder=st.empty())
             if guardrails_on:
                 st.caption("Guardrail: ✅ in scope")
             else:

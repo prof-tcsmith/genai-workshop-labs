@@ -19,7 +19,7 @@ import operator
 import streamlit as st
 
 from shared import store
-from shared.core import boot, chat, layer_badge
+from shared.core import boot, layer_badge, stream_assistant, tool_calls_to_message
 
 client = boot("Level 4 · MCP + tools")
 
@@ -195,58 +195,47 @@ if st.button("Run agent", type="primary"):
         {"role": "user", "content": goal},
     ]
     trace = []          # request/response pairs for the visible MCP trace
-    final_answer = None
 
     st.subheader("🔁 Agent loop (MCP client ↔ server ↔ tool)")
     for step in range(max_steps):
-        # The model acts as the MCP CLIENT: it sees the tool catalog and may
-        # choose to call one or more tools, or to answer directly.
-        resp = chat(client, messages, tools=TOOLS, tool_choice="auto")
-        m = resp.choices[0].message
-
-        if not m.tool_calls:
-            # No more tool requests -> this is the final answer.
-            final_answer = m.content or ""
-            break
+        # The model acts as the MCP CLIENT. placeholder=None: tool-call steps carry
+        # little/no prose; the final answer is streamed under its own header below.
+        content, calls = stream_assistant(
+            client, messages, tools=TOOLS, tool_choice="auto", placeholder=None
+        )
+        if not calls:
+            break  # the model is ready to answer — stop calling tools
 
         # Record the assistant turn (with its tool_calls) EXACTLY as the API needs.
-        messages.append({
-            "role": "assistant",
-            "content": m.content or "",
-            "tool_calls": [tc.model_dump() for tc in m.tool_calls],
-        })
+        messages.append(tool_calls_to_message(content, calls))
 
         # Execute each requested tool on the server and feed results back.
-        for tc in m.tool_calls:
-            name = tc.function.name
-            args = json.loads(tc.function.arguments or "{}")
+        for c in calls:
+            name = c["name"]
+            try:
+                args = json.loads(c["args"] or "{}")
+            except json.JSONDecodeError:
+                args = {}
             result = server.call_tool(name, args)
             trace.append({"step": step + 1, "name": name, "args": args, "result": result})
 
             # Render this round-trip as an MCP REQUEST + RESPONSE.
             with st.container(border=True):
                 st.markdown(f"**Step {step + 1} — `{name}`**")
-                c1, c2 = st.columns(2)
-                with c1:
+                col1, col2 = st.columns(2)
+                with col1:
                     st.caption("➡️ MCP REQUEST (client → server: call_tool)")
                     st.json({"tool": name, "arguments": args})
-                with c2:
+                with col2:
                     st.caption("⬅️ MCP RESPONSE (server → client: result)")
                     st.json(result)
 
             # The tool result goes back as a role:"tool" message keyed by call id.
-            messages.append({
-                "role": "tool",
-                "tool_call_id": tc.id,
-                "content": json.dumps(result),
-            })
-    else:
-        # Loop exhausted without a final answer — ask once more, no tools.
-        final_answer = chat(client, messages).choices[0].message.content
+            messages.append({"role": "tool", "tool_call_id": c["id"], "content": json.dumps(result)})
 
-    # --- Results --------------------------------------------------------------
+    # --- Final answer (streamed token-by-token) -------------------------------
     st.subheader("✅ Final answer")
-    st.write(final_answer or "_(no answer produced)_")
+    stream_assistant(client, messages, placeholder=st.empty())
 
     with st.expander("🔎 Full trace (every request/response pair)"):
         st.json(trace)
