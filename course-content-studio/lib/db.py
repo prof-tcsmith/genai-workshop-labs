@@ -27,7 +27,13 @@ def connect() -> psycopg.Connection:
             "Postgres not configured — set PG_* secrets "
             "(see postgres-setup/README.md)."
         )
-    return psycopg.connect(config.pg_dsn(), row_factory=psycopg.rows.dict_row)
+    # prepare_threshold=None disables server-side prepared statements so this
+    # works over a transaction-mode pooler (e.g. Neon's -pooler host / PgBouncer)
+    # as well as a direct connection. Queries here aren't hot-looped, so there's
+    # no meaningful downside.
+    return psycopg.connect(
+        config.pg_dsn(), row_factory=psycopg.rows.dict_row, prepare_threshold=None
+    )
 
 
 def list_courses() -> list[dict]:
