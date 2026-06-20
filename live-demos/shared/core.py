@@ -1,4 +1,4 @@
-"""Shared infrastructure for the 5 progressive live demos.
+"""Shared infrastructure for the 8 progressive building blocks.
 
 - One OpenAI key, pasted in the sidebar, held in session memory only.
 - Cheap model defaults + a per-session request cap (shared key safety).
@@ -99,7 +99,7 @@ def ensure_access() -> None:
         return
     if st.session_state.get("_pass_ok"):
         return
-    st.title("🔒 Enterprise AI — live demos")
+    st.title("🔒 Enterprise AI — the building blocks")
     st.caption("Enter the participant code from the workshop to continue.")
     pw = st.text_input("Participant code", type="password")
     if st.button("Enter"):
