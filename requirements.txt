@@ -1,3 +1,18 @@
+# Repo-root requirements — superset for all Streamlit Community Cloud apps in this
+# monorepo (workshop-labs, live-demos, course-content-studio). Cloud installs from
+# this file; per-app requirements.txt also exist for local/Docker use.
 streamlit>=1.36
 openai>=1.40
 numpy>=1.26
+# course-content-studio (RAG + structured DB + MCP + capstone)
+pinecone>=5.0
+psycopg[binary]>=3.1
+python-pptx>=0.6.23
+pdfplumber>=0.11
+pypdf>=4.0
+beautifulsoup4>=4.12
+markdownify>=0.13
+lxml>=5.0
+tiktoken>=0.7
+mcp>=1.2
+httpx>=0.27
