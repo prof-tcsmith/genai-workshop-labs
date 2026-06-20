@@ -426,7 +426,7 @@ function Deck({ topic: T }) {
 /* ========================== END ENGINE ========================== */
 
 /* ====================== CONTENT START (author this region) ====================== */
-/* Level 6 — A2A + governance. Three specialist agents (Orchestrator / Research /
+/* Level 7 — Multi-agent + governance. Three specialist agents (Orchestrator / Research /
    Action) collaborate on a refund under governance: A2A messages, RBAC enforced
    in code, a human approval gate, and an append-only audit log. */
 
@@ -501,7 +501,7 @@ function RbacCheck() {
 }
 
 const TOPIC = {
-  kicker: "Level 6 · A2A + governance · Layers 2 & 7",
+  kicker: "Level 7 · Multi-agent + governance · Layers 2 & 7",
   slides: [
     { h: "Agents that collaborate — safely",
       sub: "A refund, handled by three specialist agents under governance.",
@@ -525,9 +525,9 @@ const TOPIC = {
       "Expand <b>Prove RBAC</b> — watch a read-side write get blocked.",
       "<b>Approve / deny</b> at the gate; then read the <b>audit log</b>.",
       "Try <b>5012</b> (expired) to see a denial." ] },
-    { h: "Governance is never \"done\"", tag: "shortcoming",
-      warn: "Governance is never 'done' — model and data drift, new attack patterns, and ongoing evaluation/monitoring mean the controls need continuous attention.",
-      next: "The end-to-end case studies & the full 7-layer architecture (the main workshop deck)" },
+    { h: "But will it survive an attack?", tag: "shortcoming",
+      warn: "Governance rules only help if they hold up under attack — prompt injection, data exfiltration, or tricking an agent into an unauthorized write. The controls need to be adversarially tested.",
+      next: "Level 8 — Red-team & govern" },
     { h: "Why it matters", tag: "takeaway",
       note: "Orchestration lets specialist agents collaborate (<b>Layer 2</b>), but trust comes from governance (<b>Layer 7</b>) — least-privilege RBAC, a human before irreversible actions, and a complete audit trail. This is <b>IS governance, applied to agents</b>." },
   ],

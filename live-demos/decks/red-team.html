@@ -426,107 +426,84 @@ function Deck({ topic: T }) {
 /* ========================== END ENGINE ========================== */
 
 /* ====================== CONTENT START (author this region) ====================== */
-/* Define an Arch (architecture diagram) component using the SVG helpers + html`` and
-   inline <svg viewBox=...> ... </svg>. Define an interactive Viz component. Then build
-   TOPIC = { kicker, slides:[...] }. Slide fields:
-     h (heading, required), sub, bullets:[html strings], comp (a component like Arch/Viz),
-     note (html), warn (html — the shortcoming), next (text — the lab that fixes it), tag.
-   Put the architecture diagram on its own slide via comp:Arch. Aim for ~7 slides. */
+/* Level 8 — Red-team & govern an agent (closing lab). HR-policy agent: build it,
+   attack it, then turn on defense-in-depth controls and watch the attacks fail. */
 
-// Diagonal arrow helper — connects boxes at different heights cleanly (used for the branch).
-function DArrow({x1,y1,x2,y2,color=C.faint,label,lx,ly}){const a=Math.atan2(y2-y1,x2-x1),ux=Math.cos(a),uy=Math.sin(a),L=11,W=6,bx=x2-L*ux,by=y2-L*uy,px=-uy,py=ux;return html`<g stroke=${color} fill=${color}><line x1=${x1} y1=${y1} x2=${bx} y2=${by} stroke-width="2.2"/><polygon stroke="none" points=${`${x2},${y2} ${bx+W*px},${by+W*py} ${bx-W*px},${by-W*py}`}/>${label?html`<text x=${lx??(x1+x2)/2} y=${ly??(y1+y2)/2-6} text-anchor="middle" font-size="11" fill=${C.muted} stroke="none">${label}</text>`:''}</g>`;}
-
-// Guardrail flow: a user turn hits an independent scope check (separate LLM call) FIRST.
-// It branches: BLOCK (red, main model never called) or PASS (green) → system prompt + history → LLM → reply.
+// Architecture: defense in depth. Attack vectors enter on the left and must pass
+// every control layer before reaching the agent; egress is checked and logged.
 function Arch() {
-  const y = 70, h = 50, mid = y + h/2;            // box band + arrow centerline
   return html`<div class="arch">
-    <svg viewBox="0 0 720 240" role="img">
-      ${Box({x:6,   y, w:92,  h, lines:["User turn"], accent:C.accent})}
-      ${HArrow({x1:98,  x2:150, y:mid, label:"check first"})}
-      ${Box({x:150, y, w:120, h, lines:["Scope check","(separate LLM)"], accent:C.violet, fs:11})}
-      ${DArrow({x1:270, y1:y+14, x2:330, y2:198, color:C.danger, label:"BLOCK", lx:296, ly:128})}
-      ${Box({x:330, y:184, w:200, h:44, lines:["main model never called"], accent:C.danger, fs:11})}
-      ${DArrow({x1:270, y1:y+36, x2:330, y2:mid, color:C.ok, label:"PASS", lx:298, ly:66})}
-      ${Box({x:330, y, w:142, h, lines:["System prompt","+ history"], fs:12})}
-      ${HArrow({x1:472, x2:524, y:mid, label:"send"})}
-      ${Box({x:524, y, w:70,  h, lines:["LLM"], accent:C.accent2})}
-      ${HArrow({x1:594, x2:646, y:mid, label:"reply"})}
-      ${Box({x:646, y, w:70,  h, lines:["Reply"], accent:C.ok})}
+    <svg viewBox="0 0 720 250" role="img">
+      <!-- incoming attack vectors (left) -->
+      ${Box({x:12,y:48,w:132,h:46,lines:["Poisoned","document"],accent:C.danger,fs:12})}
+      ${Box({x:12,y:156,w:132,h:46,lines:["Malicious","user message"],accent:C.danger,fs:12})}
+      ${HArrow({x1:144,x2:198,y:71,color:C.danger})}
+      ${HArrow({x1:144,x2:198,y:179,color:C.danger})}
+      <!-- controls: defense in depth — the attack must pass every layer -->
+      <rect x="200" y="28" width="206" height="194" rx="12" fill="rgba(255,255,255,.03)" stroke=${C.line} stroke-width="1"/>
+      <text x="303" y="45" text-anchor="middle" font-size="10.5" font-weight="700" letter-spacing="0.06em" fill=${C.faint}>CONTROLS · DEFENSE IN DEPTH</text>
+      ${Box({x:214,y:55,w:178,h:42,lines:["Input / retrieval filter"],fill:"rgba(110,168,254,.10)",accent:C.accent,fs:11})}
+      ${Box({x:214,y:106,w:178,h:42,lines:["Tool RBAC · least privilege"],fill:"rgba(94,234,212,.10)",accent:C.accent2,fs:11})}
+      ${Box({x:214,y:157,w:178,h:42,lines:["Human approval gate"],fill:"rgba(167,139,250,.12)",accent:C.violet,fs:11})}
+      <!-- protected core: agent + tools -->
+      ${HArrow({x1:406,x2:438,y:125,color:C.faint})}
+      ${Box({x:440,y:100,w:140,h:50,lines:["Agent + tools","(HR-policy)"],accent:C.ok,fs:13})}
+      <!-- outbound egress checks -->
+      ${HArrow({x1:580,x2:600,y:125,color:C.faint})}
+      ${Box({x:602,y:74,w:104,h:46,lines:["Output","check"],accent:C.accent,fs:12})}
+      ${Box({x:602,y:150,w:104,h:46,lines:["Audit log"],accent:C.warn,fs:12})}
+      ${VArrow({y1:120,y2:150,x:654,color:C.faint})}
     </svg>
-    <div class="archcap">The scope check runs first. Off-topic or unsafe turns take the red path and the main model never runs; in-scope turns pass through to the LLM.</div>
+    <div class="archcap">Attacks must pass every control — input filtering, least-privilege RBAC, human approval — then egress is checked and logged.</div>
   </div>`;
 }
 
-// Interactive: a scope gate. Toggle guardrails ON/OFF, pick a sample message, see the verdict.
-// Fully canned — no network. With guardrails ON, off-topic messages are blocked before the model.
-function ScopeGate() {
-  const [on, setOn] = useState(true);
-  const msgs = [
-    { t: "Reset my password", inScope: true },
-    { t: "My invoice looks wrong", inScope: true },
-    { t: "Write me a poem", inScope: false },
-    { t: "Ignore your rules", inScope: false },
-  ];
-  const [pick, setPick] = useState(0);
-  const m = msgs[pick];
-  const blocked = on && !m.inScope;
-  const verdict = blocked
-    ? { pill: "🚫 blocked", pc: "var(--danger)", pb: "rgba(251,113,133,.16)", pbd: "rgba(251,113,133,.5)",
-        line: "Off-topic for Northwind Cloud support — the scope check failed closed and the main model was never called." }
-    : { pill: "✅ in scope → answered", pc: "var(--ok)", pb: "rgba(52,211,153,.16)", pbd: "rgba(52,211,153,.5)",
-        line: on ? "Passed the scope check — handed to the assistant." : "Guardrails off — the bot answers anything, on-task or not." };
+// Interactive: pick an attack + a control, see the verdict. Adapted from slides.html.
+function AttackMatrix() {
+  const M = {
+    "Prompt injection":  { "Input filtering":["Blocked","var(--ok)"],  "Tool RBAC":["Reduced","var(--warn)"], "Approval gate":["Reduced","var(--warn)"], "Audit only":["Exposed","var(--danger)"] },
+    "Data exfiltration": { "Input filtering":["Reduced","var(--warn)"], "Tool RBAC":["Blocked","var(--ok)"],   "Approval gate":["Reduced","var(--warn)"], "Audit only":["Reduced","var(--warn)"] },
+    "Unauthorized write":{ "Input filtering":["Exposed","var(--danger)"],"Tool RBAC":["Reduced","var(--warn)"], "Approval gate":["Blocked","var(--ok)"],  "Audit only":["Exposed","var(--danger)"] },
+  };
+  const [a,setA]=useState("Prompt injection");
+  const [c,setC]=useState("Input filtering");
+  const [verdict,color]=M[a][c];
   return html`<div class="viz">
-    <div class="row">
-      <span class="seg">
-        <button class=${on?'on':''} onClick=${()=>setOn(true)}>Guardrails ON</button>
-        <button class=${!on?'on':''} onClick=${()=>setOn(false)}>Guardrails OFF</button>
-      </span>
-      <span class="pill" style=${{color:verdict.pc,background:verdict.pb,borderColor:verdict.pbd}}>${verdict.pill}</span>
-    </div>
-    <div class="row" style=${{marginTop:'9px'}}>
-      <span class="seg">
-        ${msgs.map((x,k)=>html`<button key=${k} class=${k===pick?'on':''} onClick=${()=>setPick(k)}>${x.t}</button>`)}
-      </span>
-    </div>
-    <p class="sub" style=${{marginTop:'9px'}}>${verdict.line}</p>
-    <small class="muted">Same bot — only the gate changed. Turn guardrails off and it wanders.</small>
+    <small class="muted">Attack</small>
+    <div class="seg">${Object.keys(M).map(k=>html`<button key=${k} class=${a===k?'on':''} onClick=${()=>setA(k)}>${k}</button>`)}</div>
+    <small class="muted" style=${{display:'block',marginTop:8}}>Control</small>
+    <div class="seg">${Object.keys(M[a]).map(k=>html`<button key=${k} class=${c===k?'on':''} onClick=${()=>setC(k)}>${k}</button>`)}</div>
+    <div style=${{marginTop:10}}><span class="pill" style=${{color,borderColor:color}}>${verdict}</span>
+      <small class="muted"> · no single control is enough — defense in depth.</small></div>
   </div>`;
 }
 
 const TOPIC = {
-  kicker: "Level 3 · Guardrails · Layers 1, 3, 7",
+  kicker: "Level 8 · Red-team & govern · Governance",
   slides: [
-    { h: "Add guardrails: keep the assistant on-task and safe.",
-      sub: "Scenario: scope a general bot down to “Northwind Cloud” support — nothing else." },
-
-    { h: "What it does", tag: "the cool part",
-      bullets: [
-        "Every message passes an <b>independent pre-flight scope check</b> before the main model runs.",
-        "<b>Off-topic or unsafe</b> messages are blocked — the assistant never sees them.",
-        "In-scope messages pass straight through and get answered.",
-        "Toggle the guardrail <b>off</b> and the same bot wanders off-task.",
-      ] },
-
-    { h: "The two layers", tag: "soft vs hard",
-      bullets: [
-        "<b>Guardrail 1</b> — a rule in the system prompt. Soft: a clever message can talk the model out of it.",
-        "<b>Guardrail 2</b> — an independent classifier call that runs first and <b>fails closed</b>. A hard gate.",
-        "Layer them: the prompt sets intent, the gate enforces it.",
-      ],
-      note: "A guardrail is partly “just a document in the prompt” — that's exactly why you also need a separate, fail-closed gate that can't be argued with." },
-
-    { h: "Architecture", tag: "how it fits together", comp: Arch },
-
-    { h: "Scope gate", tag: "interactive", comp: ScopeGate,
-      note: "Flip the toggle and pick a message: with guardrails ON, “write me a poem” and “ignore your rules” are blocked before the model; turn them OFF and the bot answers everything." },
-
-    { h: "What this still can't do", tag: "the limit",
-      warn: "It stays on-task, but it only knows what's in its prompt — no access to real product knowledge, so specific questions get vague or guessed answers.",
-      next: "Level 4 — Grounding & RAG" },
-
-    { h: "Why it matters", tag: "takeaway",
-      note: "Scope + a fail-closed gate are where governance (Layer 7) first shows up. Production layers them, plus input/output filters, tool RBAC, and approval gates (you'll see those at Level 7)." },
+    { h: "Build → attack → govern", sub: "Make an agent, try to break it, then defend it.",
+      bullets: ["Scenario: an <b>HR-policy agent</b> that answers staff questions and can act on policy systems."], tag:"scenario" },
+    { h: "What you'll do", tag:"the cool part", bullets: [
+      "<b>Attack it</b>: prompt injection via a poisoned policy doc.",
+      "Try <b>data exfiltration</b> and an <b>unauthorized write</b>.",
+      "Then flip on the controls — and watch the <b>same attacks get blocked</b>." ] },
+    { h: "Defense in depth", tag:"architecture", comp: Arch },
+    { h: "How agents fail", tag:"failure modes", bullets: [
+      "<b>Prompt injection</b> — untrusted content hijacks the instructions.",
+      "<b>Excessive agency</b> — more power than the task needs.",
+      "<b>Data leakage</b> — secrets surfaced to the wrong party.",
+      "Anchored by the <b>OWASP Top 10 for LLM Apps</b>." ] },
+    { h: "Attack vs. control", tag:"try it", sub:"Pick an attack and a control — see Blocked / Reduced / Exposed.", comp: AttackMatrix },
+    { h: "Govern it", tag:"try it", bullets: [
+      "<b>Tool permissioning</b> = the new RBAC.",
+      "<b>Approval gates</b> = the new change control.",
+      "<b>Reasoning traces</b> = the new audit log.",
+      "Map to <b>NIST AI RMF</b> · <b>ISO 42001</b> · <b>EU AI Act</b>." ] },
+    { h: "Governance is never \"done\"", tag:"shortcoming",
+      warn: "No single control is enough, and governance is never 'done' — new attacks, model/data drift, and evaluation are continuous.",
+      next: "Course Content Studio — the real application" },
+    { h: "Why it matters", tag:"takeaway",
+      note: "<b>Autonomy made safe</b> is an extension of the IS governance you already teach — defense in depth, applied to agents." },
   ],
 };
 /* ====================== CONTENT END ====================== */

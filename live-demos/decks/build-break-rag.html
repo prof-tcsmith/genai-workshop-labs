@@ -426,117 +426,96 @@ function Deck({ topic: T }) {
 /* ========================== END ENGINE ========================== */
 
 /* ====================== CONTENT START (author this region) ====================== */
-/* Level 5 — MCP + tools: an agent that can ACT.
-   Arch = the MCP client→server→tool dance: [Model = MCP client] ⇄ [MCP server
-   (list_tools/call_tool)] ⇄ [Tools: get_order · search_kb · calculator] →
-   [Enterprise systems], with explicit REQUEST/RESPONSE arrows and a loop-back arc.
-   McpLoop = interactive auto-cycling round-trip (adapted from agent.html's AgentLoop).
-   TOPIC = { kicker, slides:[...] }. */
+/* Define an Arch (architecture diagram) component using the SVG helpers + html`` and
+   inline <svg viewBox=...> ... </svg>. Define an interactive Viz component. Then build
+   TOPIC = { kicker, slides:[...] }. Slide fields:
+     h (heading, required), sub, bullets:[html strings], comp (a component like Arch/Viz),
+     note (html), warn (html — the shortcoming), next (text — the lab that fixes it), tag.
+   Put the architecture diagram on its own slide via comp:Arch. Aim for ~8 slides. */
 
+// Horizontal RAG pipeline: Documents → Chunk → Embed → [Vector index] → Top-k → Assemble → [LLM] → Answer
 function Arch() {
+  const y = 92, h = 50, mid = y + h/2;          // box vertical band + arrow centerline
   return html`<div class="arch">
-    <svg viewBox="0 0 720 230" role="img">
-      <!-- Model = MCP client -->
-      ${Box({x:14,y:80,w:150,h:70,lines:["Model","(MCP client)"],accent:C.violet,fs:13})}
-      <!-- loop-back arc on the client: repeat until final answer -->
-      <path d="M 22 80 C 6 44 96 36 122 70" fill="none" stroke=${C.faint} stroke-width="2.2" stroke-dasharray="5 4"/>
-      <polygon points="122,70 110,66 117,57" fill=${C.faint}/>
-      <text x="70" y="30" text-anchor="middle" font-size="10" fill=${C.faint}>loop until final answer</text>
-
-      <!-- REQUEST (client → server) and RESPONSE (server → client) -->
-      ${HArrow({x1:164,x2:268,y:104,color:C.accent,label:"call_tool"})}
-      <text x="216" y="120" text-anchor="middle" font-size="10" fill=${C.accent}>REQUEST</text>
-      ${HArrow({x1:268,x2:164,y:140,color:C.accent2})}
-      <text x="216" y="160" text-anchor="middle" font-size="10" fill=${C.accent2}>RESPONSE (result)</text>
-
-      <!-- MCP server -->
-      ${Box({x:268,y:74,w:168,h:82,lines:["MCP server","list_tools / call_tool"],accent:C.accent,fs:13})}
-
-      <!-- server → tools -->
-      ${HArrow({x1:436,x2:498,y:115,label:"run"})}
-
-      <!-- Tools box -->
-      ${Box({x:498,y:54,w:208,h:122,lines:[],fill:"#16223f",stroke:C.line})}
-      <text x="602" y="74" text-anchor="middle" font-size="12" font-weight="700" fill=${C.accent2}>Tools</text>
-      ${Box({x:510,y:84,w:184,h:24,lines:["get_order · read"],fs:11,color:C.muted})}
-      ${Box({x:510,y:114,w:184,h:24,lines:["search_kb · read"],fs:11,color:C.muted})}
-      ${Box({x:510,y:144,w:184,h:24,lines:["calculator · compute"],fs:11,color:C.muted})}
-
-      <!-- tools reach into enterprise systems / data -->
-      ${VArrow({y1:176,x:602,y2:200})}
-      <text x="602" y="222" text-anchor="middle" font-size="11" fill=${C.faint}>Enterprise systems / data (orders · KB)</text>
+    <svg viewBox="0 0 720 220" role="img">
+      ${Box({x:6,  y, w:84, h, lines:["Documents"], accent:C.accent})}
+      ${HArrow({x1:90,  x2:128, y:mid, label:"chunk"})}
+      ${Box({x:128,y, w:74, h, lines:["Chunk"]})}
+      ${HArrow({x1:202, x2:240, y:mid, label:"embed"})}
+      ${Box({x:240,y, w:74, h, lines:["Embed"]})}
+      ${HArrow({x1:314, x2:352, y:mid, label:"store"})}
+      ${Box({x:352,y, w:96, h, lines:["Vector","index"], accent:C.violet})}
+      ${HArrow({x1:448, x2:486, y:mid, label:"top-k"})}
+      ${Box({x:486,y, w:104,h, lines:["Top-k","retrieve"]})}
+      ${HArrow({x1:590, x2:628, y:mid, label:"context"})}
+      ${Box({x:628,y, w:86, h, lines:["Assemble","context"]})}
+      ${VArrow({y1:y+h, y2:178, x:671})}
+      ${Box({x:560,y:178, w:154,h:34, lines:["LLM → grounded answer"], accent:C.accent2, fs:12})}
     </svg>
-    <div class="archcap">The model is the MCP client: it sends a <b>call_tool</b> REQUEST, the server runs the tool and returns a RESULT, and the client loops until it can give a final answer — collapsed into one process so every message is visible.</div>
+    <div class="archcap">Left → right ingest & index; query joins at retrieval, then context + LLM produce a cited answer.</div>
   </div>`;
 }
 
-function McpLoop() {
-  const steps = [
-    { label:"Client requests", tool:"call_tool: get_order", color:C.accent, msg:"REQUEST →" },
-    { label:"Server runs tool", tool:"get_order(4471)", color:C.violet, msg:"executing…" },
-    { label:"Result returns", tool:"← {status, days_ago}", color:C.accent2, msg:"RESPONSE ←" },
-    { label:"Final answer", tool:"no more tools — reply", color:C.ok, msg:"done ✓" },
-  ];
-  const [i, setI] = useState(0);
-  const [auto, setAuto] = useState(true);
-  useEffect(() => { if(!auto) return; const t=setInterval(()=>setI(x=>(x+1)%steps.length),1100); return ()=>clearInterval(t); }, [auto]);
-  const cur = steps[i];
+// Interactive: chunk-size slider with a retrieval-quality bar that peaks at a balanced size.
+// Adapted from slides.html ChunkSlider — quality peaks near ~600 chars and falls off both ways.
+function ChunkSlider() {
+  const [s, setS] = useState(600);
+  const quality = Math.max(8, Math.round(100 - Math.abs(s-600)/12));
+  const color = quality >= 70 ? "var(--ok)" : quality >= 40 ? "var(--warn)" : "var(--danger)";
+  const verdict = s < 250 ? "Tiny chunks fragment the rule — retrieval grabs a piece, the model can't see the whole policy."
+    : s > 950 ? "Huge chunks dilute relevance — the right sentence drowns in unrelated text."
+    : "Balanced chunks — the whole rule fits in one snippet, so retrieval lands it cleanly.";
   return html`<div class="viz">
-    <div class="row">
-      ${steps.map((s,k)=>html`<span key=${k} class="row" style=${{gap:6}}>
-        <span class="pill" style=${k===i?{color:s.color,borderColor:s.color,background:'rgba(110,168,254,.12)',boxShadow:'0 0 16px rgba(94,234,212,.30)'}:{color:C.faint}}>${s.label}</span>
-        ${k<steps.length-1?html`<span style=${{color:C.faint}}>→</span>`:''}
-      </span>`)}
-      <span style=${{color:C.faint,fontSize:18}}>↻</span>
-    </div>
-    <div class="row" style=${{marginTop:12}}>
-      <span class="pill" style=${{color:cur.color,borderColor:cur.color}}>${cur.msg}</span>
-      <small class="muted">tool: <b style=${{color:cur.color}}>${cur.tool}</b></small>
-    </div>
-    <div class="row" style=${{marginTop:12}}>
-      <button class="nav-b" style=${{width:'auto',padding:'0 12px'}} onClick=${()=>{setAuto(false);setI(x=>(x+1)%steps.length);}}>Step ▸</button>
-      <button class="nav-b" style=${{width:'auto',padding:'0 12px'}} onClick=${()=>setAuto(a=>!a)}>${auto?'Pause':'Auto'}</button>
-      <small class="muted">…each request/response pair, until no more tools are needed.</small>
-    </div>
+    <div class="row"><span class="num">chunk size</span>
+      <input type="range" min="80" max="1200" step="20" value=${s} onInput=${e=>setS(+e.target.value)} style=${{flex:1}}/>
+      <span class="num">${s} chars</span></div>
+    <div class="meterlbl"><span>retrieval quality</span><span>${quality}%</span></div>
+    <div class="bar"><i style=${{width:quality+'%',background:color}}></i></div>
+    <small class="muted">${verdict}</small>
   </div>`;
 }
 
 const TOPIC = {
-  kicker: "Level 5 · MCP + tools · Layers 2, 3, 5",
+  kicker: "Level 5 · Build & break a RAG · Retrieval & data",
   slides: [
-    { h: "An agent that can act",
-      sub: "From answering to doing — via tools." },
+    { h: "Build & break a RAG",
+      sub: "Grounding is only as good as the retrieval pipeline behind it." },
 
-    { h: "What it does", tag: "the cool part", bullets: [
-      "The <b>model decides</b> which tool to call — and with what arguments.",
-      "A small <b>server runs</b> it: <code>get_order</code>, <code>search_kb</code>, or <code>calculator</code>.",
-      "The <b>loop continues</b> until the model has enough to answer.",
-      "Every <b>MCP request & response</b> is visible — the whole exchange." ] },
+    { h: "What you build", tag: "the cool part",
+      bullets: [
+        "<b>Chunk</b> your documents and <b>embed</b> them into vectors.",
+        "<b>Store</b> the vectors so you can search them by meaning.",
+        "<b>Retrieve</b> the most similar passages for a question.",
+        "Feed them to the model → <b>grounded, cited answers you built yourself.</b>",
+      ] },
 
     { h: "Architecture", tag: "how it fits together", comp: Arch },
 
-    { h: "How it works", tag: "under the hood", bullets: [
-      "The server advertises a <b>tool catalog</b> — names + JSON-schema params; the model sees exactly those.",
-      "The model emits a <b>tool call</b>; the server executes it and returns a <b>result message</b>.",
-      "A <b>max-steps cap</b> bounds the loop so it can't run forever.",
-      "<b>Reads</b> (<code>get_order</code>, <code>search_kb</code>) vs a <b>compute</b> tool (<code>calculator</code>)." ] },
+    { h: "How it works", tag: "the mechanics",
+      bullets: [
+        "<b>Embeddings</b> turn text into vectors; <b>cosine similarity</b> finds the relevant chunks.",
+        "<b>Chunk size & overlap</b> are design choices — not defaults.",
+        "<b>Context assembly</b> (\"context engineering\") frames the snippets for the model.",
+        "~80% of enterprise AI failures are <b>data-engineering</b> failures the pipeline exposes <small class=\"muted\">(RAND, 2024)</small>.",
+      ] },
 
-    { h: "Watch the round-trip", tag: "interactive", comp: McpLoop,
-      note: "Client <b>requests</b> → server <b>runs the tool</b> → <b>result returns</b> → repeat → <b>final answer</b>. Hit <b>Step</b> to advance one message, or let it <b>Auto</b>-cycle. The pill shows the current tool." },
+    { h: "Tune the chunking", tag: "interactive", comp: ChunkSlider,
+      note: "Drag the slider: retrieval quality peaks at a balanced chunk size and collapses for tiny or huge chunks." },
 
-    { h: "Try it in the demo", tag: "hands-on", bullets: [
-      "Goal: <b>\"Is order 4471 within the refund window?\"</b> — then Run agent.",
-      "Watch each <b>MCP REQUEST / RESPONSE</b> pair appear, step by step.",
-      "Open <b>Full trace</b> and the <b>Raw message log</b> to see the <code>role:'tool'</code> replies.",
-      "Adjust <b>Max agent steps</b> and re-run to see the cap change the loop." ] },
+    { h: "Break it / try it", tag: "where it fails",
+      bullets: [
+        "<b>Tiny chunks</b> fragment the rule — the model never sees the whole policy.",
+        "A <b>stale, conflicting doc</b> in the corpus flips the answer.",
+        "A retrieved <b>restricted doc</b> is a real permission leak — not hypothetical.",
+        "<b>Freshness & permissions</b> must reach retrieval, or they don't exist.",
+      ] },
 
-    { h: "Shortcoming", tag: "what's still missing",
-      warn: "It's a <b>single agent</b> and the tools run with <b>no governance</b> — any tool can be called, writes would execute autonomously, there's <b>no separation of duties</b>, <b>no human approval</b>, and <b>no audit trail</b>.",
-      next: "Level 6 — A2A + governance" },
+    { h: "What a RAG still can't do", tag: "the limit",
+      warn: "Even a perfect RAG can only <b>talk</b> — it can answer questions, but it can't take an action on the user's behalf (issue the refund, file the ticket).",
+      next: "Level 6 — Tools & the agent loop" },
 
-    { h: "Why it matters",
-      sub: "MCP is just a clean client/server contract for tools.",
-      note: "MCP is just a clean <b>client/server contract</b> for tools — <b>orchestration (Layer 2)</b> turns a model into something that <b>acts on enterprise systems (Layer 5)</b>. The real protocol-over-Docker version lives in the repo's <code>mcp-lab/</code>." },
+    { h: "Why it matters", tag: "takeaway",
+      note: "Retrieval quality dominates output quality — a better corpus and pipeline beat a bigger model. This is where your IS data-management expertise is most directly reusable." },
   ],
 };
 /* ====================== CONTENT END ====================== */

@@ -3,92 +3,174 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Enterprise AI for IS Faculty — hands-on labs</title>
+<title>Enterprise AI for IS Faculty — workshop hub</title>
 <style>
   :root{--bg:#0b1020;--panel:#141d36;--panel2:#1b2748;--ink:#eaf0ff;--muted:#9fb0d6;--faint:#6b7aa3;
         --line:rgba(255,255,255,.14);--accent:#6ea8fe;--accent2:#5eead4;--violet:#a78bfa;--warn:#fbbf24;}
-  *{box-sizing:border-box} body{margin:0;background:
+  *{box-sizing:border-box}
+  body{margin:0;background:
       radial-gradient(1100px 600px at 85% -10%,rgba(110,168,254,.16),transparent 60%),
       radial-gradient(800px 500px at -10% 110%,rgba(94,234,212,.12),transparent 55%),var(--bg);
     color:var(--ink);font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.45;min-height:100vh}
-  .wrap{max-width:1060px;margin:0 auto;padding:34px 20px 64px}
+  .wrap{max-width:1080px;margin:0 auto;padding:34px 20px 64px}
   .kicker{color:var(--accent2);font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:12px}
-  h1{font-size:clamp(26px,4vw,42px);margin:6px 0 6px;letter-spacing:-.01em}
-  .sub{color:var(--muted);font-size:clamp(15px,2vw,19px);margin:0 0 22px;max-width:62ch}
-  .note{background:rgba(251,191,36,.10);border-left:4px solid var(--warn);border-radius:0 9px 9px 0;
-    padding:12px 16px;margin:0 0 24px}
-  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
-  @media(max-width:740px){.grid{grid-template-columns:1fr}}
-  .lab{display:block;text-decoration:none;color:inherit;background:linear-gradient(180deg,var(--panel),var(--panel2));
-    border:1px solid var(--line);border-radius:13px;padding:16px 18px;transition:border-color .15s,transform .1s}
-  .lab:hover{border-color:var(--accent);transform:translateY(-2px)}
-  .lab .layer{color:var(--accent2);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
-  .lab h3{margin:4px 0 4px;font-size:19px}
-  .lab p{margin:0;color:var(--muted);font-size:14px}
-  .lab .go{margin-top:10px;color:var(--accent);font-weight:600;font-size:14px}
-  code{background:#070c1a;border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:13px}
-  .foot{margin-top:26px;color:var(--faint);font-size:13px}
+  h1{font-size:clamp(28px,4.4vw,46px);margin:6px 0 8px;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:clamp(15px,2vw,19px);margin:0 0 22px;max-width:70ch}
   a{color:var(--accent)}
+  code{background:#070c1a;border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:13px}
+
+  .note{background:rgba(251,191,36,.10);border-left:4px solid var(--warn);border-radius:0 9px 9px 0;
+    padding:12px 16px;margin:0 0 30px}
+
+  .sectlabel{display:flex;align-items:center;gap:10px;margin:30px 0 14px;color:var(--faint);
+    font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+  .sectlabel::after{content:"";flex:1;height:1px;background:var(--line)}
+
+  /* primary path: two big numbered tracks with a connector */
+  .path{display:grid;grid-template-columns:1fr 44px 1fr;gap:0;align-items:stretch}
+  @media(max-width:760px){.path{grid-template-columns:1fr}}
+  .track{display:block;text-decoration:none;color:inherit;background:linear-gradient(180deg,var(--panel),var(--panel2));
+    border:1px solid var(--line);border-radius:15px;padding:20px 22px;transition:border-color .15s,transform .1s}
+  .track:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .track.cap{border-color:rgba(94,234,212,.45)}
+  .track .num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;
+    background:rgba(110,168,254,.16);color:var(--accent);font-weight:800;font-size:14px;margin-bottom:8px}
+  .track.cap .num{background:rgba(94,234,212,.16);color:var(--accent2)}
+  .track .tag{color:var(--accent2);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+  .track h2{margin:3px 0 6px;font-size:22px}
+  .track p{margin:0 0 10px;color:var(--muted);font-size:14.5px}
+  .track .flow{color:var(--faint);font-size:12.5px;margin:0 0 12px;line-height:1.7}
+  .track .go{color:var(--accent);font-weight:700;font-size:14px}
+  .track.cap .go{color:var(--accent2)}
+  .conn{display:flex;align-items:center;justify-content:center;color:var(--faint);font-size:26px}
+  @media(max-width:760px){.conn{transform:rotate(90deg);padding:6px 0}}
+
+  /* secondary toolbox grid */
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}
+  @media(max-width:760px){.grid{grid-template-columns:1fr}}
+  .card{display:block;text-decoration:none;color:inherit;background:linear-gradient(180deg,var(--panel),var(--panel2));
+    border:1px solid var(--line);border-radius:12px;padding:15px 17px;transition:border-color .15s,transform .1s}
+  .card:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .card .layer{color:var(--accent2);font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em}
+  .card h3{margin:4px 0 4px;font-size:16px}
+  .card p{margin:0;color:var(--muted);font-size:13.5px}
+  .card .go{margin-top:9px;color:var(--accent);font-weight:600;font-size:13.5px}
+
+  /* the 7-layer strip */
+  .layers{display:flex;flex-wrap:wrap;gap:7px;margin:2px 0 6px}
+  .pill{border:1px solid var(--line);border-radius:999px;padding:4px 11px;font-size:12.5px;color:var(--muted)}
+  .pill b{color:var(--ink)}
+  .pill.gov{border-color:rgba(251,191,36,.45);color:var(--warn)}
+
+  .foot{margin-top:30px;color:var(--faint);font-size:13px;border-top:1px solid var(--line);padding-top:16px}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <span class="kicker">Enterprise AI for IS Faculty</span>
-  <h1>Hands-on labs</h1>
-  <p class="sub">It all builds to one payoff: a tool that turns your course materials into <b>Canvas-ready quizzes</b>. <b>①</b> watch the live demos, <b>②</b> practice in the core labs, <b>③</b> build the capstone — <b>Course Content Studio</b>.</p>
+
+  <span class="kicker">USF Muma College of Business · Information Systems</span>
+  <h1>Enterprise AI for IS Faculty</h1>
+  <p class="sub">A hands-on workshop. You build a GenAI system <b>one layer at a time</b> — then watch those same
+  blocks become a <b>real application</b> that turns your course materials into <b>Canvas-ready quizzes</b>.
+  Everything runs in your browser: no install, no account.</p>
 
   <div class="note">
-    <b>Before you start:</b> when an app asks for a <b>participant code</b> (or, in some labs, an <b>OpenAI key</b>), Tim hands it out at the session.
-    Keys stay server-side or in your browser only — nothing is stored.
+    <b>Start here:</b> when an app asks for a <b>participant code</b> (and, in a couple of labs, an <b>OpenAI key</b>),
+    Tim hands it out at the session. Keys stay server-side or in your browser only — nothing is stored.
+    Free apps sleep when idle, so give one a few seconds to wake on first click.
   </div>
 
-  <div class="grid">
-    <a class="lab" id="live-demos" href="https://genai-workshop-labs-58vsud6bvuaus8e4wymwfu.streamlit.app/">
-      <div class="layer">① Show · Streamlit</div>
-      <h3>Live demos (6 levels)</h3>
-      <p>Chatbot → memory → guardrails → context → MCP + tools → A2A + governance. The 7-layer stack coming to life, one capability at a time — each step naming what's missing → next.</p>
-      <div class="go">Open the live demos →</div>
+  <!-- ============ PRIMARY PATH ============ -->
+  <div class="sectlabel">The workshop, in two moves</div>
+  <div class="path">
+
+    <a class="track" id="building-blocks" href="https://genai-workshop-labs-58vsud6bvuaus8e4wymwfu.streamlit.app/">
+      <span class="num">1</span>
+      <div class="tag">Learn the building blocks</div>
+      <h2>Enterprise AI — the building blocks</h2>
+      <p>Eight short, interactive steps. Each adds <b>one</b> capability, lights up more of the 7-layer
+      stack, and names <b>what's still missing</b> — which sets up the next one.</p>
+      <p class="flow">Chatbot → Memory → Guardrails → Grounding &amp; RAG → Build &amp; break a RAG →
+      Tools &amp; the agent loop → Multi-agent &amp; governance → Red-team &amp; govern</p>
+      <div class="go">Open the building blocks →</div>
     </a>
 
-    <a class="lab" id="streamlit" href="https://genai-workshop-labs-tcsmith.streamlit.app/">
-      <div class="layer">② Do · Streamlit</div>
-      <h3>The four core labs</h3>
-      <p>Grounding (prompt → retrieval → tool), build &amp; break a RAG, an agent loop with an approval gate, and red-team-and-govern an agent.</p>
-      <div class="go">Open the lab app →</div>
-    </a>
+    <div class="conn">→</div>
 
-    <a class="lab" id="studio" href="https://genai-workshop-labs-awybgq8gnmnrevxna2ukv3.streamlit.app/">
-      <div class="layer">③ ★ The capstone · Streamlit</div>
-      <h3>Course Content Studio</h3>
-      <p><b>Everything builds to this.</b> Real vector DB (RAG) → structured database → the coupling problem → MCP-decoupled tools → upload your slides &amp; readings and <b>export a Canvas QTI quiz</b> to import into Canvas.</p>
+    <a class="track cap" id="studio" href="https://genai-workshop-labs-awybgq8gnmnrevxna2ukv3.streamlit.app/">
+      <span class="num">2</span>
+      <div class="tag">See them become a real app</div>
+      <h2>Course Content Studio</h2>
+      <p>The applied case: the <b>same blocks</b>, now with <b>real services</b> — a real vector DB, a real
+      database, a real MCP service — assembled into a working tool.</p>
+      <p class="flow">Upload PDFs / PPTX / HTML / Markdown → ground an LLM in your material →
+      generate quizzes &amp; assignments → <b>export a Canvas QTI .zip</b> to import into Canvas</p>
       <div class="go">Open the capstone →</div>
     </a>
 
-    <a class="lab" href="./prompt-lab/">
-      <div class="layer">Layer 3 · browser-only</div>
-      <h3>Prompt &amp; structured output</h3>
-      <p>Iterate prompts, change format and temperature, and extract clean JSON. Pure client-side — runs right here.</p>
-      <div class="go">Open the prompt lab →</div>
-    </a>
+  </div>
 
-    <a class="lab" href="./deck.html">
+  <!-- ============ THE FRAMEWORK ============ -->
+  <div class="sectlabel">The map underneath it all — the 7-layer stack</div>
+  <div class="layers">
+    <span class="pill"><b>1</b> · Experience</span>
+    <span class="pill"><b>2</b> · Orchestration</span>
+    <span class="pill"><b>3</b> · Model</span>
+    <span class="pill"><b>4</b> · Retrieval &amp; context</span>
+    <span class="pill"><b>5</b> · Enterprise systems</span>
+    <span class="pill"><b>6</b> · Data foundation</span>
+    <span class="pill gov"><b>7</b> · Governance (every layer)</span>
+  </div>
+  <p class="sub" style="margin:6px 0 0;font-size:15px">Every block and the capstone map back to this one picture —
+  the model (layer 3) is the smallest part; the leverage is in retrieval, data, and governance.
+  <a href="./deck.html">Open the interactive deck →</a></p>
+
+  <!-- ============ TOOLBOX ============ -->
+  <div class="sectlabel">Toolbox &amp; reference</div>
+  <div class="grid">
+    <a class="card" href="./deck.html">
       <div class="layer">Slides</div>
       <h3>The deck</h3>
-      <p>The interactive slide deck — the 7-layer stack, the diagrams, and the three closing cases.</p>
+      <p>The interactive talk: the 7-layer stack, the diagrams, and the closing cases.</p>
       <div class="go">Open the deck →</div>
     </a>
-
-    <a class="lab" href="https://github.com/modelcontextprotocol/inspector" id="mcp">
+    <a class="card" href="./prompt-lab/">
+      <div class="layer">Layer 3 · browser-only</div>
+      <h3>Prompt &amp; structured output</h3>
+      <p>Iterate prompts, change format and temperature, and extract clean JSON. Runs right here.</p>
+      <div class="go">Open the prompt lab →</div>
+    </a>
+    <a class="card" href="https://github.com/modelcontextprotocol/inspector">
       <div class="layer">Layer 2 · advanced (Docker)</div>
       <h3>MCP tool server</h3>
-      <p>Run a small MCP server in a container and connect a client. See <code>mcp-lab/README.md</code> in the repo for steps.</p>
+      <p>Run a small MCP server in a container and connect a client. See <code>mcp-lab/README.md</code>.</p>
       <div class="go">Setup instructions →</div>
+    </a>
+    <a class="card" href="https://github.com/prof-tcsmith/genai-workshop-labs">
+      <div class="layer">Source</div>
+      <h3>GitHub repo</h3>
+      <p>All three apps, the decks, and the facilitator notes — clone, run locally, or reuse in class.</p>
+      <div class="go">View the repo →</div>
+    </a>
+    <a class="card" href="https://genai-workshop-labs-58vsud6bvuaus8e4wymwfu.streamlit.app/">
+      <div class="layer">Run locally · Docker</div>
+      <h3>Building blocks image</h3>
+      <p>The blocks app also ships as a container: <code>proftsmith/genai-live-demos</code>.</p>
+      <div class="go">Open the app →</div>
+    </a>
+    <a class="card" href="https://genai-workshop-labs-awybgq8gnmnrevxna2ukv3.streamlit.app/">
+      <div class="layer">Next session</div>
+      <h3>Autonomy &amp; agents</h3>
+      <p>The capstone is built by hand. Next time: agents and harnesses that assemble the pipeline themselves.</p>
+      <div class="go">Preview in the capstone →</div>
     </a>
   </div>
 
   <p class="foot">
-    Facilitator: pre-warm the three Streamlit apps before the session (free apps sleep when idle), and rotate the keys afterward.
+    Facilitator: pre-warm both Streamlit apps before the session (free apps sleep when idle), hand out the
+    participant code, and rotate the keys afterward.
   </p>
+
 </div>
 </body>
 </html>

@@ -433,92 +433,88 @@ function Deck({ topic: T }) {
      note (html), warn (html — the shortcoming), next (text — the lab that fixes it), tag.
    Put the architecture diagram on its own slide via comp:Arch. Aim for ~8 slides. */
 
-// Horizontal grounding flow: Question → Retrieve top-k from an Info store →
-// Engineer prompt ("answer only from context + cite") → LLM → grounded, cited answer.
+// Horizontal RAG flow: Question → Embed → Vector search over the corpus →
+// Top-k chunks → LLM (system: answer only from context + cite) → grounded, cited answer.
 function Arch() {
   const y = 78, h = 54, mid = y + h/2;            // box band + arrow centerline
   return html`<div class="arch">
     <svg viewBox="0 0 720 220" role="img">
-      ${Box({x:6,   y, w:92,  h, lines:["Question"], accent:C.accent})}
-      ${HArrow({x1:98,  x2:146, y:mid, label:"top-k"})}
-      ${Box({x:146, y, w:104, h, lines:["Retrieve","top-k"]})}
-      ${HArrow({x1:250, x2:300, y:mid, label:"cosine"})}
-      ${Box({x:274, y:158, w:180, h:44, lines:["Info store: KB + policy"], accent:C.violet, fs:12})}
-      ${VArrow({y1:158, y2:y+h, x:364})}
-      ${Box({x:300, y, w:128, h, lines:["Engineer prompt:","“only context + cite”"], fs:11})}
-      ${HArrow({x1:428, x2:476, y:mid, label:"send"})}
-      ${Box({x:476, y, w:76,  h, lines:["LLM"], accent:C.accent2})}
-      ${HArrow({x1:552, x2:604, y:mid, label:"answer"})}
-      ${Box({x:604, y, w:112, h, lines:["Grounded,","cited answer"], accent:C.ok})}
+      ${Box({x:4,   y, w:88,  h, lines:["User","question"], accent:C.accent, fs:12})}
+      ${HArrow({x1:92,  x2:140, y:mid, label:"embed"})}
+      ${Box({x:140, y, w:80,  h, lines:["Embed"], fs:12})}
+      ${HArrow({x1:220, x2:268, y:mid, label:"search"})}
+      ${Box({x:268, y, w:110, h, lines:["Vector","search"], accent:C.violet, fs:12})}
+      ${Box({x:248, y:158, w:150, h:44, lines:["Corpus: KB + policy"], accent:C.violet, fs:11})}
+      ${VArrow({y1:158, y2:y+h, x:323})}
+      ${HArrow({x1:378, x2:426, y:mid, label:"top-k"})}
+      ${Box({x:426, y, w:112, h, lines:["LLM","“context + cite”"], accent:C.accent2, fs:11})}
+      ${HArrow({x1:538, x2:586, y:mid, label:"answer"})}
+      ${Box({x:586, y, w:130, h, lines:["Grounded,","cited answer"], accent:C.ok, fs:12})}
     </svg>
-    <div class="archcap">Left → right: retrieve the right snippets from the info store, engineer the prompt around them, then the LLM returns a cited answer.</div>
+    <div class="archcap">Embed the question, search the corpus, feed the top-k chunks to an LLM told to answer only from that context & cite — out comes a grounded answer.</div>
   </div>`;
 }
 
-// Interactive: grounded vs ungrounded toggle. Self-contained canned answers — no network.
-// The grounded answer cites [refund_policy] with the enterprise-specific window;
-// the ungrounded one is vague/generic and cites nothing.
+// Interactive: model-alone vs grounded-on-retrieval toggle. Self-contained — no network.
+// Model alone is fluent but can hallucinate and cites nothing; grounded cites [refund_policy].
 function GroundToggle() {
   const [grounded, setGrounded] = useState(true);
   const view = grounded
-    ? { ans: "Enterprise customers have a <b>60-day</b> refund window from the invoice date, vs. 30 days for standard plans. <span class=\"num\">[refund_policy]</span>",
-        pill: "cited ✅", pc: "var(--ok)", pb: "rgba(52,211,153,.16)", pbd: "rgba(52,211,153,.5)" }
+    ? { ans: "Enterprise customers have a <b>60-day</b> refund window from the invoice date, vs. 30 days for standard plans. <span class=\"num\">[refund_policy ¶3]</span>",
+        pill: "grounded · cited ✅", pc: "var(--ok)", pb: "rgba(52,211,153,.16)", pbd: "rgba(52,211,153,.5)" }
     : { ans: "You can usually request a refund within about 30 days of purchase, though it may depend on your plan and region. Check your account settings or contact support to confirm.",
-        pill: "no source ⚠️", pc: "var(--warn)", pb: "rgba(251,191,36,.14)", pbd: "rgba(251,191,36,.5)" };
+        pill: "model alone · may hallucinate ⚠️", pc: "var(--warn)", pb: "rgba(251,191,36,.14)", pbd: "rgba(251,191,36,.5)" };
   return html`<div class="viz">
     <div class="row">
       <span class="seg">
-        <button class=${grounded?'on':''} onClick=${()=>setGrounded(true)}>With retrieval</button>
-        <button class=${!grounded?'on':''} onClick=${()=>setGrounded(false)}>No retrieval</button>
+        <button class=${!grounded?'on':''} onClick=${()=>setGrounded(false)}>Model alone</button>
+        <button class=${grounded?'on':''} onClick=${()=>setGrounded(true)}>Grounded on chunks</button>
       </span>
       <span class="pill" style=${{color:view.pc,background:view.pb,borderColor:view.pbd}}>${view.pill}</span>
     </div>
     <p class="sub" style=${{marginTop:'9px'}} dangerouslySetInnerHTML=${{__html:view.ans}}></p>
-    <small class="muted">Same question, same model — only the assembled context changed.</small>
+    <small class="muted">Same question, same model — only whether retrieved chunks were in the context.</small>
   </div>`;
 }
 
 const TOPIC = {
-  kicker: "Level 4 · Context engineering · Layers 3, 4, 6",
+  kicker: "Level 4 · Grounding & RAG · Retrieval-augmented answers",
   slides: [
-    { h: "Grounding: context, not cleverness",
-      sub: "The answer is only as good as the context you assemble." },
+    { h: "Grounding & RAG: answer from sources, not memory",
+      sub: "Grounding means tying every answer to retrieved evidence — so it's checkable, current, and cited." },
 
-    { h: "What it does", tag: "the cool part",
+    { h: "Model alone vs grounded", tag: "the core idea",
       bullets: [
-        "<b>Retrieves</b> the right snippets from a small information store.",
-        "<b>Engineers</b> a prompt that forces grounding + citation.",
-        "<b>Streams</b> a cited answer drawn only from those snippets.",
-        "Shows <b>grounded vs ungrounded</b> side-by-side for contrast.",
+        "<b>Model alone:</b> answers from frozen training memory — fluent, but can <b>hallucinate</b> and cites nothing.",
+        "<b>Grounded:</b> answers <b>only</b> from chunks retrieved from your corpus.",
+        "Same model, same question — the difference is the <b>context you assemble</b>.",
+        "Grounding turns a confident guess into a <b>verifiable, cited</b> answer.",
       ] },
 
-    { h: "Architecture", tag: "how it fits together", comp: Arch },
-
-    { h: "How it works", tag: "the mechanics",
+    { h: "Retrieval: how RAG finds the right chunks", tag: "the mechanism",
       bullets: [
-        "Documents are <b>embedded into vectors once</b> — the info store is built a single time.",
-        "<b>Cosine similarity</b> finds the chunks most relevant to the question.",
-        "The system instruction forces <b>“answer only from context, cite [source], else say you don't know.”</b>",
-        "This is context <b>engineering</b>: retrieval gives snippets — <b>you</b> decide how to frame them.",
+        "<b>Embed</b> the question into a vector that captures its meaning.",
+        "<b>Cosine search</b> compares it against pre-embedded chunks of your corpus.",
+        "Take the <b>top-k</b> nearest chunks — the most relevant evidence.",
+        "<b>Stuff</b> those chunks into the prompt as the context the LLM must use.",
       ] },
 
-    { h: "Grounded vs ungrounded", tag: "interactive", comp: GroundToggle,
-      note: "Toggle the source: with retrieval the answer cites <span class=\"num\">[refund_policy]</span> and gives the enterprise-specific window; with none it's vague, generic, and cites nothing." },
+    { h: "Architecture", tag: "how it's wired", comp: Arch },
 
-    { h: "Try it in the demo", tag: "your turn",
+    { h: "Model alone vs grounded", tag: "interactive", comp: GroundToggle,
+      note: "Toggle the source: grounded on retrieved chunks the answer cites <span class=\"num\">[refund_policy ¶3]</span> with the enterprise-specific window; the model alone is vague, generic, and cites nothing — and could be wrong." },
+
+    { h: "Citations: why grounding earns trust", tag: "the payoff",
       bullets: [
-        "Ask: <b>“How long do I have to get a refund as an enterprise customer?”</b>",
-        "Open <b>“🔎 Retrieved context”</b> to see the chunks + similarity scores.",
-        "Tick <b>ungrounded</b> to compare the answers side-by-side.",
-        "Slide <b>top-k</b> and watch the answer change as more (or fewer) chunks are fed.",
+        "The system prompt forces <b>“answer only from context, cite the source, else say you don't know.”</b>",
+        "Every claim links back to a <b>chunk + paragraph</b> a human can open and verify.",
+        "Citations make answers <b>auditable</b> — essential for any enterprise or IS use.",
+        "No supporting chunk → the model should <b>abstain</b>, not invent.",
       ] },
-
-    { h: "What this still can't do", tag: "the limit",
-      warn: "It can retrieve and <b>answer</b>, but it still can't <b>act</b> — it can't look up a specific live order, run a calculation, or change anything. It's read-only Q&A.",
-      next: "Level 5 — MCP + tools (an agent that can act)" },
 
     { h: "Why it matters", tag: "takeaway",
-      note: "Retrieval quality dominates output quality — better chunks + a tighter engineered prompt beat a bigger model almost every time. This is where IS data skills transfer directly." },
+      note: "Retrieval quality dominates output quality — better chunking and a tighter grounding prompt beat a bigger model almost every time. But retrieval is also exactly where RAG breaks: stale docs, bad chunks, and permission leaks all corrupt the answer before the model ever sees it.",
+      next: "Level 5 — Build & break a RAG" },
   ],
 };
 /* ====================== CONTENT END ====================== */
