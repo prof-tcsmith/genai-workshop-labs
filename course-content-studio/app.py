@@ -25,6 +25,11 @@ st.markdown(
     "\"before\" picture for next session's autonomy & agents."
 )
 
+st.caption(
+    "◀ New here? Start with the **[Live demos ↗](https://genai-workshop-labs-58vsud6bvuaus8e4wymwfu.streamlit.app/)** "
+    "(chatbot → memory → guardrails → context → MCP → governance) — the concepts this capstone is built on."
+)
+
 # The story deck — start here.
 render_deck("overview-ccs", label="📊 Start here — the build-to-application story", expanded=True)
 

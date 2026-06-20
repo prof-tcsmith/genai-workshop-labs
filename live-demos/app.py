@@ -37,6 +37,15 @@ for path, label, layers, desc in levels:
             st.caption("Layers " + ", ".join(str(x) for x in layers))
             st.page_link(path, label="Open →")
 
+st.divider()
+st.markdown(
+    "### ▶ Where this builds to — the capstone\n"
+    "These six demos are the **concepts**. Next, assemble them into a **real tool**: "
+    "**[Course Content Studio ↗](https://genai-workshop-labs-awybgq8gnmnrevxna2ukv3.streamlit.app/)** — "
+    "upload your slides & readings, ground an LLM on them with a real vector DB + database "
+    "(decoupled via MCP), and **export a Canvas QTI quiz** to import into Canvas."
+)
+
 with st.expander("The 7-layer stack (legend) / safety"):
     st.markdown("\n".join(f"- **{k}** — {v}" for k, v in STACK.items()))
     st.markdown(
