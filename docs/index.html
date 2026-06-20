@@ -38,16 +38,30 @@
   <p class="sub">The deck is the show; these are the do. Each lab runs in your browser in a few minutes — no install, no account.</p>
 
   <div class="note">
-    <b>Before you start:</b> paste the <b>OpenAI key</b> Tim hands out when a lab asks for it (it stays in your browser only).
-    If a lab asks for a <b>workshop passphrase</b>, that's on the slide too.
+    <b>Before you start:</b> when an app asks for a <b>participant code</b> (or, in some labs, an <b>OpenAI key</b>), Tim hands it out at the session.
+    Keys stay server-side or in your browser only — nothing is stored.
   </div>
 
   <div class="grid">
-    <a class="lab" id="streamlit" href="REPLACE_WITH_STREAMLIT_URL">
-      <div class="layer">Layers 2–7 · Streamlit</div>
+    <a class="lab" id="live-demos" href="https://genai-workshop-labs-58vsud6bvuaus8e4wymwfu.streamlit.app/">
+      <div class="layer">Show · Streamlit</div>
+      <h3>Live demos (5 levels)</h3>
+      <p>Chatbot → memory + guardrails → context → MCP + tools → A2A + governance. The 7-layer stack coming to life, one capability at a time.</p>
+      <div class="go">Open the live demos →</div>
+    </a>
+
+    <a class="lab" id="streamlit" href="https://genai-workshop-labs-tcsmith.streamlit.app/">
+      <div class="layer">Do · Streamlit</div>
       <h3>The four core labs</h3>
       <p>Grounding (prompt → retrieval → tool), build &amp; break a RAG, an agent loop with an approval gate, and red-team-and-govern an agent.</p>
       <div class="go">Open the lab app →</div>
+    </a>
+
+    <a class="lab" id="studio" href="https://genai-workshop-labs-awybgq8gnmnrevxna2ukv3.streamlit.app/">
+      <div class="layer">Build · Streamlit</div>
+      <h3>Course Content Studio</h3>
+      <p>From chunks to a real tool: RAG on a vector DB → structured lookup → MCP-decoupled tools → upload your slides and export a <b>Canvas QTI</b> quiz.</p>
+      <div class="go">Open the studio →</div>
     </a>
 
     <a class="lab" href="./prompt-lab/">
@@ -73,8 +87,7 @@
   </div>
 
   <p class="foot">
-    Facilitator: replace <code>REPLACE_WITH_STREAMLIT_URL</code> with the deployed Streamlit app URL before the session,
-    pre-warm the Streamlit app (free apps sleep when idle), and use a budget-capped key that you revoke afterward.
+    Facilitator: pre-warm the three Streamlit apps before the session (free apps sleep when idle), and rotate the keys afterward.
   </p>
 </div>
 </body>
