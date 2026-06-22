@@ -19,6 +19,18 @@ A working demo proves that a capability is *possible*. Production proves it is *
 
 **Teaching note.** Open with this question and return to it at every layer. It reframes "AI anxiety" as familiar engineering and management work seen through a new lens.
 
+## What makes AI "enterprise"? Three levels
+
+Many people feel they understand enterprise AI once they have used a chatbot. The fastest way to reset that is to take **one task** and show it at three levels of engineering:
+
+1. **AI as a productivity tool** — you paste the leave policy into ChatGPT/Claude and ask for a summary. Personal, ungrounded, no system around it. Minutes to value.
+2. **AI as an application feature** — a "summarize" button inside the HR portal: one model call wired into an app. Embedded, but still a single shot.
+3. **AI as an enterprise system** — an **HR policy assistant** that retrieves *approved* policy text, **cites** it, checks the asker's **role**, **logs** the interaction, and **routes** uncertain cases to a human. This needs data access, tools, permissions, a workflow, and oversight — i.e. **architecture**.
+
+Level 3 is this workshop, and that architecture is exactly what the 7-layer stack maps out. (We build that very HR assistant as a worked case at the end, and again hands-on in the labs.)
+
+**Teaching note.** This is the single move that shifts the room from *AI use* to *AI system design*. Keep the same example (HR policy) running through the whole day so each layer visibly adds one piece of the level-3 system.
+
 ## Generative AI is another layer — not a teardown
 
 Generative AI sits *on top of* the analytics and data stack faculty already teach; it does not replace it. Traditional machine learning (regression, trees, clustering, deep learning) still does most predictive work in enterprises. Generative AI adds a new layer that is good at language, synthesis, and orchestration.
@@ -158,6 +170,21 @@ The single most useful decision rule: **fine-tune for *style, format, and domain
 
 **Teaching note.** A good assignment: give students a business need and have them justify the lowest rung that actually solves it. Most real needs are solved at "retrieval," not "fine-tune."
 
+## Structured output — the bridge from prose to systems
+
+Enterprise AI rarely wants a paragraph; it wants a **value another system can act on**. Ask a model to "classify this support ticket" and you can get fluent prose ("this looks fairly urgent, probably billing…") — or, by constraining the response to a **JSON schema**, a machine-checkable object:
+
+```json
+{ "category": "billing", "urgency": "high", "route_to": "finance",
+  "needs_human": true, "confidence": 0.82 }
+```
+
+The difference matters because the second form is what the rest of the system consumes: orchestration (Layer 2) can route on `route_to`, gate on `needs_human`, abstain or escalate on `confidence`, and store the record. Structured outputs (OpenAI `response_format`, Anthropic `output_config.format`) validate against the schema, so integration is reliable rather than vibes-based. Prompting vs. RAG vs. fine-tuning answer *what the model knows*; structured output answers *what the rest of the system can do with the answer*.
+
+**Where it shows up:** demo 7's orchestrator returns a strict JSON decision; the capstone generates schema-validated assessment items; a lab has participants move the same task from loose prose → table → JSON with a confidence/escalation flag.
+
+**Teaching note.** This is the cleanest place to make "enterprise vs. consumer AI" concrete: consumer AI optimizes the *prose*; enterprise AI optimizes the *contract* with the next system.
+
 ---
 
 # Part 5 — Layer 4: Retrieval & context
@@ -245,9 +272,21 @@ Agent governance is not a new discipline; it is an extension of governance IS fa
 
 Anchor all of this to standards your courses already touch — **NIST AI RMF, ISO/IEC 42001, the EU AI Act** — mapped onto familiar frameworks like **COBIT** and **NIST CSF**. Observability is the enabler underneath: capture the full trace, evaluate continuously, audit on demand.
 
+## Evaluation — how do we know it works?
+
+A demo proves a capability *can* work once. Evaluation is how you know it *still* works on the cases you care about — and it is the discipline IS faculty already teach as assessment, applied to a non-deterministic system. The core practice is a **golden-question set**: curate ~20 real questions with known-good answers and score every change (prompt, model, data, chunking) against them, like a rubric for the system. Useful dimensions:
+
+- **Faithfulness** — does the answer match the cited source?
+- **Retrieval quality** — did the right chunk come back at all?
+- **Abstention** — does it say "I don't know" when the answer isn't supported?
+
+The operational move is to **gate releases on the eval** (no green eval, no ship), **monitor in production** by sampling and re-scoring live traffic, and **route low-confidence or failed cases to a human**. Deterministic test cases fail on probabilistic systems, so the eval set — not a single happy-path demo — is the unit of trust. (Hands-on: the *Build & break a RAG* lab includes a golden-question check; sabotage the pipeline and watch the score fall.)
+
+**Teaching note.** This reframes "AI is unpredictable" as a familiar testing problem: you cannot assert exact output, but you *can* assert measurable properties over a representative set — exactly what software testing and educational assessment already do.
+
 ## The Agent Risk & Governance Canvas
 
-The canvas is a one-page tool for reasoning about a single agentic use case before it is built. Its nine cells: **use case & business value, stakeholders, data sources, model & adapter, tools & autonomous actions, human oversight points, security risks, compliance, and evaluation & trace observability.** Filling it in forces the hard questions early — especially "which actions are irreversible, and where is the human gate?" — and produces an artifact that feeds directly into the cases below and into students' coursework.
+The canvas is a one-page tool for reasoning about a single agentic use case before it is built. Its nine cells: **use case & business value, stakeholders, data sources, model & adapter, tools & autonomous actions, human oversight points, security risks, compliance, and evaluation & trace observability.** Filling it in forces the hard questions early — especially "which actions are irreversible, and where is the human gate?" — and produces an artifact that feeds directly into the cases below and into students' coursework. It is the **risk-and-governance deep-dive** on one cell of the broader **Enterprise AI Design Canvas** introduced in Part 10.
 
 ---
 
@@ -287,21 +326,69 @@ Each case follows the same shape so the structure itself becomes a teaching tool
 
 ---
 
-# Part 10 — Live demos (run them yourself)
+# Part 10 — Value, use-case selection, and adoption
 
-The deck is the show; five **progressive live demos** let participants *do* and *observe*. They run locally in Docker — one command, `docker compose up`, then open `http://localhost:8501` and paste the workshop OpenAI key into the sidebar. Each level adds exactly one capability and lights up more of the 7-layer stack, so the progression itself teaches the architecture. (Facilitator setup and management: see the separate *Live Demos — Facilitator Guide*.)
+The hard part of enterprise AI is rarely getting a model to answer; it is choosing *what* to build, justifying *why*, and sequencing the rollout so governance grows with capability. This part gives faculty the language to teach that — and a take-home artifact.
 
-**Level 1 — Chatbot (Layers 1, 3).** A system prompt plus a single message, and nothing else: no memory, no guardrails. It shows exactly what is sent to the model, and makes the point that a bare chatbot is just configuration (the system prompt) over a model call. Observe: change the system prompt and watch behavior change; send a second message and notice it doesn't remember the first.
+## Which use case first? Value × feasibility
 
-**Level 2 — Memory + guardrails (Layers 1, 3, 7).** The same chat, now scoped to a narrow support task (a "Northwind Cloud" support bot) with two visible additions: conversation **memory** (the running history, shown in an expander, is replayed to the model each turn) and a **guardrail** that checks whether each message is in-scope and refuses off-topic requests. A toggle turns the guardrail off so participants see the bot wander without it. This is where governance (Layer 7) first appears, in miniature.
+Not every problem is a good *first* AI system. Score candidates on two axes — **business value** and **feasibility** (to build *and* govern):
 
-**Level 3 — Context engineering (Layers 4, 6).** A question is answered by first **retrieving** from an information store and then **engineering the context** — the demo shows the retrieved chunks, the exact assembled prompt, and the grounded, cited answer, with an option to show the ungrounded answer side by side. The lesson lands visually: grounding is an information-retrieval and data problem, and retrieval quality dominates output quality.
+- **High value · high feasibility →** start here (a "lighthouse" project).
+- **High value · low feasibility →** invest in the data/tools foundation first.
+- **Low value · high feasibility →** a quick win or a safe training ground.
+- **Low value · low feasibility →** don't.
 
-**Level 4 — MCP + tools (Layers 2, 5).** The model gains **tools** exposed by an MCP-style server (`get_order`, `search_kb`, `calculator`). The demo renders the server's tool catalog and then the client↔server message flow — each tool call as a request and response — before the final answer. The agent can now *act*, not just talk. The real MCP protocol over Docker lives in the repo's `mcp-lab/` for anyone who wants the deeper version.
+"Feasible" is mostly four questions: does grounded, permissioned **data** exist? Is a wrong answer **recoverable**? Can a **human** check the high-stakes step? Can you define and **measure** "working"? Good first systems are **high-frequency, bounded, and reversible** — exactly the refund and HR assistants used throughout this deck.
 
-**Level 5 — A2A + governance (Layers 2, 7).** A refund request is handled by **multiple agents** — an orchestrator, a read-only research agent, and a write-capable action agent — exchanging agent-to-agent messages. Every step runs under governance: **RBAC** (only the action agent may issue a refund; a read-side write attempt is blocked in code), a **human approval gate** before any write executes, and an **append-only audit log** of every message, tool call, and decision. This is the whole-stack capstone: autonomy made safe with the controls from Layer 7.
+## Value mechanisms and a simple ROI framing
 
-**Teaching note.** Walk the levels in order during the session and narrate what each one adds; then point participants to run them between sessions. The demos deliberately mirror the deck's running examples (refund assistant, support bot) so the concepts compound.
+Make value concrete by naming *how* it shows up — **time, cost, quality, scale, consistency**. A back-of-envelope ROI: **(hours saved × loaded rate) + error/rework avoided − (build + run + model cost)**. Two cautions worth teaching: most durable enterprise wins are **consistency and scale**, not raw labor savings; and you should **never automate judgment out of a high-stakes, low-reversibility decision** just to improve the ROI — keep the human gate there.
+
+## An adoption roadmap: crawl → walk → run
+
+- **Crawl** — one bounded, reversible use case; human-in-the-loop; measured against a golden set.
+- **Walk** — widen scope, add tools/writes behind approval gates; stand up monitoring and an evaluation pipeline.
+- **Run** — a reusable platform (models, RAG, MCP, guardrails) plus a governance **operating model**, running a portfolio of use cases.
+
+**Teaching note.** This is the part most directly useful to the *govern/lead* track and to advising business students. Pair it with the canvas below as a studio exercise.
+
+## The Enterprise AI Design Canvas
+
+The take-home artifact. Where the Agent Risk & Governance Canvas (Part 8) is the deep-dive on the governance cell, the **Design Canvas** turns one use case into a **layered design** with one cell per stack layer, plus **Value** and **Evaluation**:
+
+- **Business process** — the workflow being improved.
+- **L1 · User & experience**, **L3 · Model task**, **L4 · Data & retrieval**, **L5 · Tools & actions**, **L2 · Orchestration & human role**, **L6 · Data foundation**, **L7 · Risks & governance**.
+- **Evaluation** — how you'll know it works (golden questions, metrics, monitoring).
+- **Value** — what improves (time/cost/quality/scale/consistency) and rough ROI.
+
+Because the cells *are* the stack, filling it in forces a participant to account for every layer — data access, tools, permissions, workflow, oversight, evaluation, and value — for a real use case. The interactive version in the deck autosaves and prints, so participants leave with their own completed design.
+
+---
+
+# Part 11 — Live demos (run them yourself)
+
+The deck is the show; eight **progressive live demos** let participants *do* and *observe*. They run locally in Docker — one command, `docker compose up`, then open `http://localhost:8501`, **pick a provider (OpenAI or Anthropic/Claude)**, and paste the workshop key into the sidebar. Each level adds roughly one capability and lights up more of the 7-layer stack, so the progression itself teaches the architecture. (Facilitator setup and management: see the separate *Live Demos — Facilitator Guide*.)
+
+> **Provider note.** Chat runs on either vendor — flip it in the sidebar or set `LLM_PROVIDER`. Embeddings always use OpenAI (Anthropic has no embeddings API), so the RAG demos need an OpenAI key even when chat runs on Claude. That split is itself a teachable point: avoid lock-in by treating chat and embeddings as separable services.
+
+**1 — Chatbot (Layers 1, 3).** A system prompt plus a single message, nothing else: no memory, no guardrails. Shows exactly what is sent to the model — a bare chatbot is just configuration over a model call. Observe: change the system prompt; send a second message and notice it doesn't remember the first.
+
+**2 — Memory (Layers 1, 3).** Adds conversation **memory** — the running history is replayed to the model each turn (shown in an expander). Makes "context window" and "the model only knows what you send it" concrete.
+
+**3 — Guardrails (Layers 1, 7).** A narrow "Northwind" support bot with a **fail-closed scope check** — an independent classifier call runs before the main model and refuses off-topic requests. A toggle turns it off so participants watch the bot wander. Governance (Layer 7) in miniature, with defense at two layers (prompt rule + separate check).
+
+**4 — Grounding & RAG (Layers 4, 6).** The same question answered **model-alone vs. grounded + cited** over a small corpus, side by side. The lesson lands visually: grounding is an information-retrieval and data problem.
+
+**5 — Build & break a RAG (Layers 4, 6).** Build a working pipeline, then flip three sabotage switches — **tiny chunks**, a **stale conflicting doc**, and a **RESTRICTED doc** (a simulated permission leak) — and watch quality collapse, with diagnostics calling out each failure. The lab version adds a **golden-question eval** so participants can *measure* the damage.
+
+**6 — Tools & the agent loop (Layers 2, 5).** A real **plan → call → observe** loop: the model calls tools (`get_order`, `search_kb`, a safe calculator) exposed by an MCP-style server, with the catalog and client↔server message flow rendered, step caps, and a human approval gate on write tools. The agent now *acts*, not just talks. The real MCP protocol over Docker lives in `mcp-lab/`.
+
+**7 — Multi-agent & governance (Layers 2, 7).** A refund handled by **multiple agents** — orchestrator (returns a structured JSON decision), a read-only research agent, and a write-capable action agent — exchanging A2A messages under **RBAC** (a read-side write attempt is blocked in code), a **human approval gate**, and an **append-only audit log**. The whole-stack capstone: autonomy made safe.
+
+**8 — Red-team (Layer 7).** Attack an HR-policy agent with three presets — **direct exfiltration**, **indirect prompt injection** via a poisoned retrieved doc, and an **unauthorized write** — then enable controls one at a time (input/retrieval filtering, tool/data RBAC, write-approval gate, output redaction) and see defense-in-depth hold.
+
+**Teaching note.** Walk the levels in order during the session and narrate what each one adds; then point participants to run them between sessions. The demos deliberately mirror the deck's running examples (refund assistant, HR/support bot) so the concepts compound.
 
 # Appendix — How this maps to the two MS programs
 

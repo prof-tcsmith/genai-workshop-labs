@@ -3,6 +3,7 @@
 # this file; per-app requirements.txt also exist for local/Docker use.
 streamlit>=1.36
 openai>=1.40
+anthropic>=0.40
 numpy>=1.26
 # course-content-studio (RAG + structured DB + MCP + capstone)
 pinecone>=5.0

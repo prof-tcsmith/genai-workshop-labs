@@ -10,7 +10,7 @@ render_key_sidebar()
 st.title("🧱 Enterprise AI — the building blocks")
 st.write(
     "Eight hands-on building blocks. Each adds **one** capability and lights up more of "
-    "the 7-layer stack. Paste the workshop OpenAI key in the sidebar, then work Levels "
+    "the 7-layer stack. Pick a provider and paste the workshop key in the sidebar, then work Levels "
     "1 → 8 — at each step you see the new capability *and* what's still missing, which "
     "sets up the next block."
 )
@@ -19,7 +19,7 @@ render_slides("overview", label="📊 Start here — the 7-layer stack (interact
 if st.session_state.get("key"):
     st.success("Key connected. Open a level from the sidebar or the list below.")
 else:
-    st.info("⬅️ Paste the workshop OpenAI key in the sidebar to begin.")
+    st.info("⬅️ Pick a provider and paste the workshop key in the sidebar to begin.")
 
 levels = [
     ("pages/1_Chatbot.py", "Level 1 · Chatbot", [1, 3],

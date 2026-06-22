@@ -32,15 +32,17 @@ def embed(texts: list[str]) -> list[list[float]]:
 
 
 def ensure_index(
-    name: str = config.PINECONE_INDEX,
+    name: str | None = None,
     dim: int = config.EMBED_DIM,
     metric: str = "cosine",
 ):
     """Return a handle to the Pinecone index ``name``, creating it if missing.
 
     Uses the modern Pinecone v5 serverless API. Raises a clear ``RuntimeError``
-    if no Pinecone API key is configured.
+    if no Pinecone API key is configured. ``name`` resolves at call time so a
+    sidebar-pasted ``pinecone_index`` takes effect.
     """
+    name = name or config.PINECONE_INDEX
     if not config.PINECONE_API_KEY:
         raise RuntimeError(
             "Pinecone is not configured. Set 'pinecone_api_key' in Streamlit "

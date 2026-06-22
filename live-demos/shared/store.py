@@ -8,8 +8,9 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
+import streamlit as st
 
-from .core import EMBED_MODEL, openai_guard
+from .core import api_guard
 
 CORPUS = Path(__file__).resolve().parent / "corpus"
 
@@ -38,10 +39,17 @@ def chunk(text: str, size: int = 600, overlap: int = 100) -> list[str]:
 
 
 def embed(client, texts: list[str]) -> np.ndarray:
+    if client.embed_raw is None:
+        st.error(
+            "🔢 Embeddings need an OpenAI API key. Anthropic has **no embeddings API**, "
+            "so the RAG demos use OpenAI embeddings even when chat runs on Claude — set "
+            "`OPENAI_API_KEY` (or paste an OpenAI key with the provider set to OpenAI)."
+        )
+        st.stop()
     try:
-        r = client.embeddings.create(model=EMBED_MODEL, input=texts)
+        r = client.embed_raw.embeddings.create(model=client.embed_model, input=texts)
     except Exception as e:
-        openai_guard(e)  # friendly message + st.stop()
+        api_guard(e)  # friendly message + st.stop()
     m = np.array([d.embedding for d in r.data], dtype=np.float32)
     n = np.linalg.norm(m, axis=1, keepdims=True)
     n[n == 0] = 1.0

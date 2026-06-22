@@ -36,23 +36,20 @@ render_deck("overview-ccs", label="📊 Start here — the build-to-application 
 
 # --- What's configured -----------------------------------------------------
 st.subheader("What's configured")
-st.caption("Live status of the services this app talks to — set these in Streamlit Secrets.")
+st.caption(
+    "Live status of the services this app talks to. **Running locally?** Paste keys in the "
+    "**🔌 Connections** sidebar. **Deployed?** Set them in Streamlit **Secrets**."
+)
 status = config.configured()
-labels = {
-    "OpenAI": "OpenAI (chat + embeddings)",
-    "Pinecone": "Pinecone (vector DB)",
-    "Postgres": "Postgres (structured data)",
-    "MCP server": "MCP server (decoupled tools)",
-}
-cols = st.columns(len(labels))
-for col, (key, label) in zip(cols, labels.items()):
-    ok = bool(status.get(key))
+cols = st.columns(len(status))
+for col, (label, ok) in zip(cols, status.items()):
     col.markdown(f"{'✅' if ok else '⬜'} **{label}**")
     col.caption("ready" if ok else "not set")
+st.caption("MCP tools run **in-process** by default — no separate server to configure.")
 if not all(status.values()):
     st.info(
-        "Greyed-out services aren't wired up yet. Each lab explains exactly which Secret it needs; "
-        "see **FACILITATOR.md** for the full setup checklist.",
+        "Greyed-out services aren't wired up yet. Paste keys in the 🔌 Connections sidebar, or see "
+        "**SETUP.md** (Pinecone + Neon, free tiers) and **FACILITATOR.md** for the full checklist.",
         icon="🛠️",
     )
 

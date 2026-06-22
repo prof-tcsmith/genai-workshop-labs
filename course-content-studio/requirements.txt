@@ -1,5 +1,6 @@
 streamlit>=1.36
 openai>=1.40
+anthropic>=0.40
 numpy>=1.26
 pinecone>=5.0
 psycopg[binary]>=3.1

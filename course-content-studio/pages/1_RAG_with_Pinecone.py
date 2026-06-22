@@ -177,21 +177,12 @@ if st.button("Search + answer"):
                 user = f"Context:\n{context}\n\nQuestion: {question}"
                 try:
                     with st.spinner("Generating a grounded answer…"):
-                        client = config.openai_client()
-                        resp = client.chat.completions.create(
-                            model=config.CHAT_MODEL,
-                            messages=[
-                                {"role": "system", "content": system},
-                                {"role": "user", "content": user},
-                            ],
-                            temperature=0,
-                        )
-                    answer = resp.choices[0].message.content
+                        answer = config.chat_text(system, user, temperature=0)
                     st.markdown("**Grounded answer:**")
                     st.info(answer)
                 except Exception as e:
                     st.error(
-                        "The LLM call failed. Check your OpenAI key/network and "
+                        "The LLM call failed. Check your API key/network and "
                         f"retry.\n\n```\n{e}\n```"
                     )
 

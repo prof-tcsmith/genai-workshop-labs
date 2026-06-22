@@ -60,7 +60,10 @@ def _item_json_schema() -> dict:
                 },
                 "required": ["source", "loc"],
             },
-            "objective_id": {"type": ["integer", "null"]},
+            # anyOf (not a {"type": [...]} union) so the schema validates on BOTH
+            # OpenAI strict mode AND Anthropic structured outputs (Anthropic does
+            # not accept JSON-Schema type-union arrays).
+            "objective_id": {"anyOf": [{"type": "integer"}, {"type": "null"}]},
             "confidence": {"type": "string", "enum": CONFIDENCE},
         },
         "required": [
@@ -90,15 +93,8 @@ def generate_items(spec: dict, grounding: list[dict], structure: dict) -> list[d
         A list of validated item dicts (malformed items dropped).
 
     Raises:
-        RuntimeError: if OpenAI is not configured (no API key).
+        RuntimeError: if the active chat provider is not configured (no API key).
     """
-    client = config.openai_client()
-    if client is None:
-        raise RuntimeError(
-            "OpenAI is not configured. Set 'openai_api_key' in Streamlit "
-            "Secrets (or the OPENAI_API_KEY env var) to generate items."
-        )
-
     grounding = grounding or []
     if not grounding:
         # Nothing to ground on — refuse rather than hallucinate.
@@ -181,25 +177,12 @@ def generate_items(spec: dict, grounding: list[dict], structure: dict) -> list[d
     )
 
     try:
-        resp = client.chat.completions.create(
-            model=config.CHAT_MODEL,
-            messages=[
-                {"role": "system", "content": system},
-                {"role": "user", "content": user},
-            ],
-            response_format={
-                "type": "json_schema",
-                "json_schema": {
-                    "name": "assessment_items",
-                    "strict": True,
-                    "schema": _item_json_schema(),
-                },
-            },
+        raw = config.chat_json(
+            system, user, _item_json_schema(), "assessment_items",
             temperature=0.2,
         )
-        raw = resp.choices[0].message.content or "{}"
     except Exception as e:
-        raise RuntimeError(f"OpenAI generation failed: {e}") from e
+        raise RuntimeError(f"Item generation failed ({config.chat_provider()}): {e}") from e
 
     try:
         payload = json.loads(raw)

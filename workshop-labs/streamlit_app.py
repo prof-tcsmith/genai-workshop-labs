@@ -11,11 +11,11 @@ st.write(
 )
 render_slides("overview", label="📊 Start here — the 7-layer stack (interactive)", expanded=True)
 
-key = st.session_state.get("openai_key")
+key = st.session_state.get("key")
 if key:
     st.success("Key connected. Pick a lab from the sidebar or the list below.")
 else:
-    st.info("⬅️ Paste the workshop OpenAI key in the sidebar to begin. Tim hands it out at the session.")
+    st.info("⬅️ Pick a provider and paste the workshop key in the sidebar to begin. Tim hands it out at the session.")
 
 st.subheader("Labs")
 labs = [

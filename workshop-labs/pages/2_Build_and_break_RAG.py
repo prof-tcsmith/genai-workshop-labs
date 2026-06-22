@@ -70,4 +70,71 @@ if st.button("Build index & answer", type="primary"):
         st.warning("**Tiny chunks** fragment the policy, so a single chunk rarely contains the whole rule. Chunking is a design decision.")
 
 st.divider()
-st.info("Lesson: retrieval quality dominates output quality. Most RAG failures are data-engineering failures the pipeline simply exposes.")
+
+# --- Evaluation: golden-question set --------------------------------------
+st.subheader("🧪 Evaluate: golden questions")
+st.caption(
+    "A demo proves the pipeline works **once**. An eval set proves it still works "
+    "on the cases you care about. Score the current settings against a few known-good "
+    "questions — then flip the sabotage switches above and re-run to watch the score drop."
+)
+
+# (question, [acceptable substrings — case-insensitive])
+GOLDEN = [
+    ("What is the enterprise refund window?", ["45"]),
+    ("What is the standard (non-enterprise) refund window?", ["30"]),
+    ("What is required for refunds above $200?", ["approval"]),
+    ("Are downloaded digital goods refundable?", ["non-refundable", "not refundable", "cannot", "no"]),
+]
+
+
+def _eval_docs():
+    docs = {n: corpus_all[n] for n in names}
+    if leak and "security_notes_RESTRICTED" in corpus_all:
+        docs["security_notes_RESTRICTED"] = corpus_all["security_notes_RESTRICTED"]
+    if stale:
+        docs["refund_policy_OLD"] = (
+            "# Old Refund Policy (v1)\n\nAll customers have a 14-day refund window. "
+            "There is no enterprise exception and no manager approval is required."
+        )
+    return docs
+
+
+if st.button("Run golden-question eval", help="Scores the golden set using the current chunking / sabotage settings."):
+    docs = _eval_docs()
+    if not docs:
+        st.warning("Add at least one document to the corpus.")
+        st.stop()
+    eff_size = 80 if tiny else size
+    with st.spinner("Scoring against the golden set…"):
+        index = rag.build_index(client, docs, size=eff_size, overlap=overlap)
+        results = []
+        passed = 0
+        for q_, expect in GOLDEN:
+            hits = rag.search(client, index, q_, k=k)
+            ctx = "\n\n".join(f"[{d['doc']}] {d['text']}" for d, _ in hits)
+            msgs = [
+                {"role": "system", "content": "Answer ONLY from the provided context. If the answer is not present, say you don't have enough information."},
+                {"role": "user", "content": f"Context:\n{ctx}\n\nQuestion: {q_}"},
+            ]
+            ans = chat(client, msgs, max_tokens=120).choices[0].message.content or ""
+            ok = any(e.lower() in ans.lower() for e in expect)
+            passed += int(ok)
+            results.append((ok, q_, expect[0], ans))
+
+    st.metric("Eval score", f"{passed}/{len(GOLDEN)} passed")
+    for ok, q_, exp, ans in results:
+        # Escape '$' so Streamlit markdown doesn't treat "$200" as LaTeX math.
+        q_disp = q_.replace("$", r"\$")
+        ans_disp = ans.strip()[:160].replace("$", r"\$")
+        st.markdown(f"{'✅' if ok else '❌'} **{q_disp}**  \nexpected ≈ `{exp}` · got: _{ans_disp}_")
+    if passed < len(GOLDEN):
+        st.warning(
+            "Below 100%. That's the point: a non-deterministic system needs a **test set**, not "
+            "a single happy-path demo. Gating releases on this eval is how a demo becomes dependable."
+        )
+    else:
+        st.success("All golden questions passed. Now sabotage the pipeline above and watch this score fall.")
+
+st.divider()
+st.info("Lesson: retrieval quality dominates output quality. Most RAG failures are data-engineering failures the pipeline simply exposes — and an eval set is how you catch them.")
