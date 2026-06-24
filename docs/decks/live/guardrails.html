@@ -445,7 +445,7 @@ function Arch() {
       ${Box({x:6,   y, w:92,  h, lines:["User turn"], accent:C.accent})}
       ${HArrow({x1:98,  x2:150, y:mid, label:"check first"})}
       ${Box({x:150, y, w:120, h, lines:["Scope check","(separate LLM)"], accent:C.violet, fs:11})}
-      ${DArrow({x1:270, y1:y+14, x2:330, y2:198, color:C.danger, label:"BLOCK", lx:296, ly:128})}
+      ${DArrow({x1:270, y1:y+14, x2:330, y2:198, color:C.danger, label:"BLOCK", lx:296, ly:176})}
       ${Box({x:330, y:184, w:200, h:44, lines:["main model never called"], accent:C.danger, fs:11})}
       ${DArrow({x1:270, y1:y+36, x2:330, y2:mid, color:C.ok, label:"PASS", lx:298, ly:66})}
       ${Box({x:330, y, w:142, h, lines:["System prompt","+ history"], fs:12})}
@@ -474,8 +474,11 @@ function ScopeGate() {
   const verdict = blocked
     ? { pill: "🚫 blocked", pc: "var(--danger)", pb: "rgba(251,113,133,.16)", pbd: "rgba(251,113,133,.5)",
         line: "Off-topic for Northwind Cloud support — the scope check failed closed and the main model was never called." }
-    : { pill: "✅ in scope → answered", pc: "var(--ok)", pb: "rgba(52,211,153,.16)", pbd: "rgba(52,211,153,.5)",
-        line: on ? "Passed the scope check — handed to the assistant." : "Guardrails off — the bot answers anything, on-task or not." };
+    : m.inScope
+    ? { pill: "✅ in scope → answered", pc: "var(--ok)", pb: "rgba(52,211,153,.16)", pbd: "rgba(52,211,153,.5)",
+        line: on ? "Passed the scope check — handed to the assistant." : "Guardrails off — but this one happens to be on-task, so it's answered." }
+    : { pill: "⚠️ off-topic → answered anyway", pc: "var(--warn)", pb: "rgba(251,191,36,.16)", pbd: "rgba(251,191,36,.5)",
+        line: "Guardrails off — the bot answers anything, on-task or not." };
   return html`<div class="viz">
     <div class="row">
       <span class="seg">
