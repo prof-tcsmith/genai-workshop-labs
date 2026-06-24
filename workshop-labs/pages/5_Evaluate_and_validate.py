@@ -18,6 +18,7 @@ SCORECARD_URL = "https://prof-tcsmith.github.io/genai-workshop-labs/deck.html"
 CONF_STRONG, CONF_WEAK = 0.45, 0.30  # cosine bands (illustrative — calibrate per embedding model)
 IMPACT = {"low": "🟢 Minor", "medium": "🟡 Serious", "high": "🔴 Critical"}
 IMPACT_WORD = {"low": "minor", "medium": "serious", "high": "critical"}
+CONTRAST_Q = "What is Northwind Cloud's enterprise refund window, in days?"  # for the grounded-vs-not demo
 
 st.title("Evaluate & validate — is it ready to ship?")
 st.caption("Validation & release · Measure properties over a representative set, against thresholds set in advance — then decide on evidence.")
@@ -59,11 +60,15 @@ GOLDEN = [
 ]
 SYS = ("Answer ONLY from the provided context. If the answer is not in the context, "
        "say you don't have enough information — do not guess.")
+PLAIN_SYS = "You are a helpful customer-support assistant."  # NO grounding — for the ungrounded control
 
 corpus = {n: t for n, t in rag.load_corpus().items() if "RESTRICTED" not in n}
 
 
-def _answer(index, q):
+def _answer(index, q, grounded=True):
+    if not grounded:  # model-only: no retrieval, no "answer from the source" rule
+        msgs = [{"role": "system", "content": PLAIN_SYS}, {"role": "user", "content": q}]
+        return chat(client, msgs, max_tokens=120).choices[0].message.content or "", []
     hits = rag.search(client, index, q, k=3)
     ctx = "\n\n".join(f"[{d['doc']}] {d['text']}" for d, _ in hits)
     msgs = [{"role": "system", "content": SYS},
@@ -94,6 +99,8 @@ Each question is checked and shown with two labels. **They mean different things
 
 **Why both:** a failure on a *Critical* question outweighs several *Minor* ones, so the go/no-go weighs
 failures by impact, not by count — and a confident answer built on *weak evidence* is exactly what to escalate.
+Below the results, a quick **control** asks one policy question both with and without the source, so you can see
+exactly what a **❌ Not grounded** answer looks like.
 """
     )
 
@@ -141,6 +148,20 @@ if st.button("Run eval", type="primary"):
             if r["kind"] == "abstain":
                 st.caption("↳ Nothing here answers the question (note the low scores) — so abstaining is correct.")
             st.divider()
+
+    st.markdown("**🔬 What does ❌ Not grounded look like?**")
+    st.caption(f'One question — *"{CONTRAST_Q}"* — asked two ways: **with** the policy and **without** it (model-only). Same confident tone; only one is backed by the source.')
+    g_ans, _ = _answer(index, CONTRAST_Q, grounded=True)
+    u_ans, _ = _answer(index, CONTRAST_Q, grounded=False)
+    u_ok = "45" in u_ans
+    gcol, ucol = st.columns(2)
+    with gcol:
+        st.markdown("**✅ Grounded** — with the policy")
+        st.success(esc(g_ans.strip()[:200]))
+    with ucol:
+        st.markdown("**❌ Not grounded** — no source")
+        (st.success if u_ok else st.error)(esc(u_ans.strip()[:200]))
+    st.caption("Same question, opposite trustworthiness: the ungrounded answer is just as fluent and confident, but **contradicts the policy** — it gives a made-up figure (30 days); the documents say **45**. That's the hallucination grounding — and this eval — exist to catch. *Demo only — not counted in the verdict.*")
 
     st.session_state["_eval"] = {"fact_pass": fact_pass, "facts": len(facts),
                                  "abstain_ok": abstain_ok, "high_fail": high_fail,
