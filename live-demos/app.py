@@ -9,9 +9,9 @@ render_key_sidebar()
 
 st.title("🧱 Enterprise AI — the building blocks")
 st.write(
-    "Eight hands-on building blocks. Each adds **one** capability and lights up more of "
+    "Nine hands-on building blocks. Each adds **one** capability and lights up more of "
     "the 7-layer stack. Pick a provider and paste the workshop key in the sidebar, then work Levels "
-    "1 → 8 — at each step you see the new capability *and* what's still missing, which "
+    "1 → 9 — at each step you see the new capability *and* what's still missing, which "
     "sets up the next block."
 )
 render_slides("overview", label="📊 Start here — the 7-layer stack (interactive)", expanded=True)
@@ -38,6 +38,8 @@ levels = [
      "Specialist agents collaborate (A2A) under RBAC, approval gates, and an audit log. Missing: it hasn't been attacked."),
     ("pages/8_Red_team.py", "Level 8 · Red-team & govern", [7],
      "Attack the system, then switch the controls on to stop it — defense in depth."),
+    ("pages/9_Evaluate_and_validate.py", "Level 9 · Evaluate & validate", [7],
+     "Is it ready to ship? Run a golden-set eval, an LLM-as-judge, and an abstention check, then a go/no-go."),
 ]
 for path, label, layers, desc in levels:
     with st.container(border=True):
@@ -51,7 +53,7 @@ for path, label, layers, desc in levels:
 st.divider()
 st.markdown(
     "### ▶ Then: see the blocks become a real application\n"
-    "These eight blocks are the **concepts**. **[Course Content Studio ↗](https://genai-workshop-labs-awybgq8gnmnrevxna2ukv3.streamlit.app/)** "
+    "These nine blocks are the **concepts**. **[Course Content Studio ↗](https://genai-workshop-labs-awybgq8gnmnrevxna2ukv3.streamlit.app/)** "
     "is the **applied case** — it *uses and extends* them with real services (a real vector "
     "DB, a real database, a real MCP service) to turn your slides & readings into a "
     "**Canvas QTI quiz** you can import into Canvas."

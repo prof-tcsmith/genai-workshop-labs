@@ -14,7 +14,7 @@ pick the provider in the app's sidebar. The facilitator will provide a key at th
 (or use your own). **The key is never stored in this repository** — you paste it in the
 sidebar, or put it in a gitignored local file.
 
-## Summary — the eight live demos
+## Summary — the nine live demos
 
 | Level | What you'll see | Stack layers |
 |---|---|---|
@@ -26,6 +26,7 @@ sidebar, or put it in a gitignored local file.
 | 6 · Tools & the agent loop | an agent calls tools in a plan→act→observe loop, with an approval gate | 2, 5 |
 | 7 · Multi-agent & governance | agents collaborate under RBAC, an approval gate, and an audit log | 2, 7 |
 | 8 · Red-team | run injection / exfiltration / unauthorized-write attacks, then enable controls | 7 |
+| 9 · Evaluate & validate | run a golden-set eval + LLM-as-judge + abstention check → a go/no-go | 7 |
 
 ---
 
