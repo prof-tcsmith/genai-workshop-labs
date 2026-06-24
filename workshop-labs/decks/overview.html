@@ -463,7 +463,11 @@ function LayerMap() {
     "L5 A2A + governance": [2,7],
   };
   const [d, setD] = useState("L1 Chatbot");
-  const active = DEMOS[d];
+  // Cumulative: by demo d you've added every capability up to and including it,
+  // so the lit set is the UNION of all demos' layers through the selected level.
+  const keys = Object.keys(DEMOS);
+  const upTo = keys.slice(0, keys.indexOf(d) + 1);
+  const active = [...new Set(upTo.flatMap(k => DEMOS[k]))];
   return html`<div class="viz">
     <div class="seg">${Object.keys(DEMOS).map(k => html`<button key=${k} class=${d===k?'on':''} onClick=${()=>setD(k)}>${k}</button>`)}</div>
     <div style=${{display:'flex',flexWrap:'wrap',gap:'7px',marginTop:'11px'}}>

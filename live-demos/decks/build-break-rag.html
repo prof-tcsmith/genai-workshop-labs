@@ -460,7 +460,7 @@ function Arch() {
 // Adapted from slides.html ChunkSlider — quality peaks near ~600 chars and falls off both ways.
 function ChunkSlider() {
   const [s, setS] = useState(600);
-  const quality = Math.max(8, Math.round(100 - Math.abs(s-600)/12));
+  const quality = Math.max(8, Math.round(100 - Math.abs(s-600)/6));
   const color = quality >= 70 ? "var(--ok)" : quality >= 40 ? "var(--warn)" : "var(--danger)";
   const verdict = s < 250 ? "Tiny chunks fragment the rule — retrieval grabs a piece, the model can't see the whole policy."
     : s > 950 ? "Huge chunks dilute relevance — the right sentence drowns in unrelated text."

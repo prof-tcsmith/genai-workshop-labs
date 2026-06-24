@@ -434,12 +434,12 @@ function Deck({ topic: T }) {
    Put the architecture diagram on its own slide via comp:Arch. Aim for ~7 slides. */
 
 // local helper: a straight arrow at ANY angle (connects boxes at different heights).
-function DArrow({x1,y1,x2,y2,color=C.faint,label,lx,ly}){
+function DArrow({x1,y1,x2,y2,color=C.faint,label,lx,ly,anchor="middle"}){
   const a=Math.atan2(y2-y1,x2-x1),ux=Math.cos(a),uy=Math.sin(a),L=11,W=6,bx=x2-L*ux,by=y2-L*uy,px=-uy,py=ux;
   return html`<g stroke=${color} fill=${color}>
     <line x1=${x1} y1=${y1} x2=${bx} y2=${by} stroke-width="2.2"/>
     <polygon stroke="none" points=${`${x2},${y2} ${bx+W*px},${by+W*py} ${bx-W*px},${by-W*py}`}/>
-    ${label?html`<text x=${lx??(x1+x2)/2} y=${ly??(y1+y2)/2-6} text-anchor="middle" font-size="11" fill=${C.muted} stroke="none">${label}</text>`:''}
+    ${label?html`<text x=${lx??(x1+x2)/2} y=${ly??(y1+y2)/2-6} text-anchor=${anchor} font-size="11" fill=${C.muted} stroke="none">${label}</text>`:''}
   </g>`;
 }
 
@@ -449,7 +449,7 @@ function Arch() {
       ${/* memory loop (top): the reply is appended to history, then replayed next turn */''}
       ${Box({x:330,y:22,w:200,h:42,lines:["Memory (history)"],accent:C.warn})}
       ${DArrow({x1:592,y1:120,x2:531,y2:55,color:C.warn,label:"append reply",lx:600,ly:78})}
-      ${DArrow({x1:430,y1:64,x2:430,y2:128,color:C.warn,label:"replay every turn",lx:430,ly:100})}
+      ${DArrow({x1:430,y1:64,x2:430,y2:128,color:C.warn,label:"replay every turn",lx:422,ly:100,anchor:"end"})}
 
       ${/* request path (middle): new turn + system prompt + full history → LLM → reply */''}
       ${Box({x:18,y:130,w:120,h:56,lines:["New user","turn"],accent:C.accent})}
@@ -465,17 +465,24 @@ function Arch() {
 }
 
 function Viz() {
-  // Canned conversation: with memory, each turn replays everything before it.
+  // Canned conversation. Each follow-up uses a pronoun ("it", "that") whose
+  // referent lives in an EARLIER turn — so without memory it can't be resolved.
   const turns = [
-    { you: "I run a Postgres database for billing.", bot: "Got it — noted that you use Postgres for billing." },
-    { you: "How do I back it up?", bot: "Use pg_dump nightly and store the dump off-site." },
-    { you: "And how do I restore that?", bot: "Restore the pg_dump output with pg_restore into a fresh database." },
+    { you: "I run a Postgres database for billing.",
+      bot: "Got it — noted that you use Postgres for billing." },
+    { you: "How do I back it up?",
+      bot: "Use pg_dump nightly and store the dump off-site.",
+      noMem: "🤷 Back up what? You haven't mentioned any system or database — I have no earlier context." },
+    { you: "And how do I restore that?",
+      bot: "Restore the pg_dump output with pg_restore into a fresh database.",
+      noMem: "🤷 Restore what? I don't have any earlier context." },
   ];
   const [n, setN] = useState(1);
   const [mem, setMem] = useState(true);
   const last = turns[n-1];
-  // Without memory, only the final turn is sent — so the "that" in turn 3 has no referent.
-  const followUpWorks = mem || n < 3;
+  // Without memory ONLY the current message is sent, so any turn that points back
+  // (turns 2 & 3: "it", "that") has no referent and breaks. Turn 1 stands alone.
+  const followUpWorks = mem || !last.noMem;
   return html`<div class="viz">
     <div class="row" style=${{justifyContent:'space-between'}}>
       <div class="seg">
@@ -498,10 +505,10 @@ function Viz() {
                     border:'1px solid '+(followUpWorks?'rgba(94,234,212,.3)':'rgba(251,113,133,.35)')}}>
         ${followUpWorks
           ? html`<span>${last.bot}</span>`
-          : html`<span>🤷 "Sorry — restore <i>what</i>? I don't have any earlier context."</span>`}
+          : html`<span>${last.noMem}</span>`}
       </div>
     </div>
-    <small class="muted">With memory ON, all prior turns are replayed, so "that" resolves. With it OFF, only the latest message is sent — the follow-up breaks. Canned, no network.</small>
+    <small class="muted">With memory ON, all prior turns are replayed, so "it"/"that" resolve. With it OFF, only the latest message is sent — every follow-up that points back breaks. Canned, no network.</small>
   </div>`;
 }
 

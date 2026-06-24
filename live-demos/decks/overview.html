@@ -466,7 +466,11 @@ function LayerMap() {
     "L8 Red-team": [7],
   };
   const [d, setD] = useState("L1 Chatbot");
-  const active = DEMOS[d];
+  // Cumulative: light the UNION of every demo's layers up to and including the selected one,
+  // so each step lights MORE of the stack and by Level 8 all seven are touched.
+  const keys = Object.keys(DEMOS);
+  const upto = keys.slice(0, keys.indexOf(d) + 1);
+  const active = [...new Set(upto.flatMap(k => DEMOS[k]))];
   return html`<div class="viz">
     <div class="seg">${Object.keys(DEMOS).map(k => html`<button key=${k} class=${d===k?'on':''} onClick=${()=>setD(k)}>${k}</button>`)}</div>
     <div style=${{display:'flex',flexWrap:'wrap',gap:'7px',marginTop:'11px'}}>

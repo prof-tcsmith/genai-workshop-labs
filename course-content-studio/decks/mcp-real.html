@@ -454,10 +454,10 @@ function Arch() {
 
       <!-- two tools, one each into a backend -->
       ${Box({x:470,y:30,w:236,h:58,lines:["vector_search → Pinecone"],accent:C.accent2,fs:12})}
-      ${DArrow({x1:400,y1:106,x2:470,y2:60,color:C.accent2,label:"call_tool"})}
+      ${DArrow({x1:400,y1:106,x2:470,y2:60,color:C.accent2,label:"call_tool",lx:455,ly:104})}
 
       ${Box({x:470,y:148,w:236,h:58,lines:["course_lookup → Postgres"],accent:C.violet,fs:12})}
-      ${DArrow({x1:400,y1:128,x2:470,y2:176,color:C.violet,label:"call_tool"})}
+      ${DArrow({x1:400,y1:128,x2:470,y2:176,color:C.violet,label:"call_tool",lx:455,ly:134})}
     </svg>
     <div class="archcap">One <b>App or Agent</b> speaks <b>one protocol</b> to <b>one MCP server</b>, which fans out to its tools: <b>vector_search → Pinecone</b> and <b>course_lookup → Postgres</b>. The SDKs and credentials now live behind the server.</div>
   </div>`;
