@@ -286,7 +286,7 @@ The operational move is to **gate releases on the eval** (no green eval, no ship
 
 ## The Agent Risk & Governance Canvas
 
-The canvas is a one-page tool for reasoning about a single agentic use case before it is built. Its nine cells: **use case & business value, stakeholders, data sources, model & adapter, tools & autonomous actions, human oversight points, security risks, compliance, and evaluation & trace observability.** Filling it in forces the hard questions early — especially "which actions are irreversible, and where is the human gate?" — and produces an artifact that feeds directly into the cases below and into students' coursework. It is the **risk-and-governance deep-dive** on one cell of the broader **Enterprise AI Design Canvas** introduced in Part 10.
+The canvas is a one-page tool for reasoning about a single agentic use case before it is built. Its nine cells: **use case & business value, stakeholders, data sources, model & adapter, tools & autonomous actions, human oversight points, security risks, compliance, and evaluation & trace observability.** Filling it in forces the hard questions early — especially "which actions are irreversible, and where is the human gate?" — and produces an artifact that feeds directly into the cases below and into students' coursework. It is the **risk-and-governance deep-dive** on one cell of the broader **Enterprise AI Design Canvas** introduced in Part 11.
 
 ---
 
@@ -326,7 +326,70 @@ Each case follows the same shape so the structure itself becomes a teaching tool
 
 ---
 
-# Part 10 — Value, use-case selection, and adoption
+# Part 10 — Validating an enterprise AI app before release
+
+Once participants can build the layers, the hard question is: **how do you know it's ready to ship?** Traditional QA asks whether the software works *as specified*; enterprise AI assurance asks whether the system is **reliable, safe, secure, useful, auditable, and appropriately governed in the actual context where it runs** — under uncertainty, across data shifts, misuse, and human-workflow effects. The shift is from a one-time QA *phase* to an ongoing, **risk-based assurance program**.
+
+## Benchmark the system, not just the model
+
+The thing under test is rarely just a model — it's the whole **AI-enabled workflow**: model, data pipeline, prompts, retrieval, business rules, tools/APIs, UI, access controls, human oversight, logging, fallback, monitoring. NIST's AI RMF takes this lifecycle view. A vocabulary worth drawing out:
+
+- **Benchmark** — comparative: how does it do vs. a baseline, humans, the prior process, or vendors?
+- **Test** — pass/fail against minimum thresholds.
+- **Evaluate** — is it good enough for *this* process, risk, and context?
+- **Verify** — did we build it to spec? **Validate** — did we build the *right* thing for the business and users?
+
+**Teaching note.** Most "the model scored 90%" claims answer only the narrowest of these. Push students to name which question their evidence actually addresses.
+
+## Two things that make AI testing different
+
+1. **Outputs are probabilistic.** Same input, different output ⇒ test **properties and distributions** over a representative set (rubrics, scenario banks, statistical thresholds), not exact-equality assertions.
+2. **Errors aren't equal.** Severity-weight them: a clipped sentence is low; a customer-facing wrong answer, a PII leak, or an unauthorized tool action is critical. A 92%-accurate model can be worse than a 96% human — and worse than a *different* 92% model — depending on where the 8% lands.
+
+Also: **the data is part of the system** (training/fine-tune/retrieval/eval data shape behavior), **the spec is incomplete** ("write a good reply" can't be unit-tested), and **the system degrades after launch** (data/model/prompt/vendor drift).
+
+## The eval harness — and a baseline to beat
+
+The eval set is a **measurement instrument**; if it's stale, easy, or unrepresentative, the benchmark misleads. Build it deliberately — representative + recent out-of-time + edge + rare-high-impact + adversarial/misuse + slice + ambiguous + must-refuse cases + known prior failures — and **version** it ("Datasheets for Datasets" is the documentation discipline).
+
+- **Metrics per task type.** RAG: faithfulness/groundedness, retrieval precision/recall, citation correctness (RAGAS separates retrieval from generation quality). Classification: P/R/F1, calibration, slice performance. Generation: rubric scores. Agents: task success, tool-call correctness, steps/cost.
+- **Graders.** Exact-match → rules → embedding similarity → **LLM-as-judge**. LLM-as-judge speeds iteration but must be **calibrated against human ratings** on a sample and periodically revalidated — never the sole evidence for production.
+- **Thresholds + baseline, set *before* testing.** Tie thresholds to **business risk** (e.g. faithfulness ≥ 98%, ≤ 1% unsupported claims, ≥ 98% of uncertain cases escalate, p95 latency, cost/workflow), and require it to **beat a baseline** — the current human process, a rules system, or the prior model.
+- **Gate releases on it.** Regression-test on every prompt/model/data/retrieval change. *No green eval, no ship.* (This is the deep-dive behind Layer 7's evaluation slide and the build-&-break-RAG "golden questions" check.)
+
+## Test the whole system, across the stack
+
+- **Component tests** per layer: data quality + leakage; retrieval quality (L4); data freshness (L6); tool correctness, reads-vs-writes (L5); guardrails/gates (L2/L7); prompt behavior, groundedness, refusal, hallucination rate, consistency.
+- **End-to-end workflow tests:** does it improve the *process*? Are handoffs clear, errors caught before harm, logs sufficient for audit, outputs traceable, failure-safe?
+- **The risk dimensions:** safety/red-team, robustness (paraphrase/OOD/abstention), bias across slices, security, cost/latency — and **human factors**.
+
+**Human factors deserve their own attention.** A system can pass UAT *because users like it* while creating hidden risk through **overreliance** (rubber-stamping wrong answers) — OWASP lists overreliance as a top LLM-app risk. Test whether the UI surfaces uncertainty and sources, and whether users escalate when they should.
+
+## Security & red-team as a release gate
+
+AI security testing = traditional appsec **plus** AI-specific attack paths: direct and **indirect** prompt injection (via retrieved docs), data exfiltration, retrieval-corpus poisoning, jailbreaks, tool abuse, and **excessive agency** (especially when the agent can email, pay, or change records). NCSC warns prompt injection is *not* like SQL injection — LLMs don't enforce a clean instruction/data boundary, so the goal is to **limit blast radius**, not "fix" it; MITRE ATLAS catalogs the adversary techniques. (Our red-team demo/lab is exactly this gate.)
+
+## The release decision — and continuous assurance
+
+Don't jump from lab to production. **Stage the rollout:** offline replay → **shadow mode** (the AI predicts but humans don't see/act) → **canary/pilot** with human-in-the-loop → full; compare to the baseline via A/B or champion–challenger. Shadow runs and pilots surface workflow failures static benchmarks miss.
+
+A defensible **go / no-go**: ship only if it beats the baseline, clears thresholds, has **no unresolved critical security/privacy risk**, handles high-severity edges, has a defined human-oversight model, and has monitoring + rollback — all documented. Then **keep assuring**: monitor input/output/performance drift, incident and override rates, retrieval/tool failures, and cost; re-evaluate when data, prompts, or the model change; roll back on breach. (Sculley et al.'s "Hidden Technical Debt in ML Systems" is the canonical warning on post-deployment system risk.)
+
+## The evidence pack and the Release Readiness Scorecard
+
+A defensible launch produces artifacts: an **AI system card, model card, dataset datasheet, evaluation plan, versioned golden set, risk register, red-team report, human-oversight plan, monitoring plan, change-management plan, incident-response plan**, and an **approval record** with sign-offs (business, technical, security, legal/compliance, risk). The **Release Readiness Scorecard** (interactive in the deck) is the one-page synthesis — claims/risk class, baseline result, eval-vs-thresholds, severity analysis, red-team outcome, oversight, monitoring/rollback, the evidence-pack index, sign-offs, and the **go/no-go**. It is the third take-home one-pager alongside the Design and Governance canvases. Hands-on, the **Evaluate & validate** lab runs a golden set, computes faithfulness/abstention, demonstrates LLM-as-judge, runs a red-team probe, and fills the scorecard.
+
+## It's the V&V your courses already teach
+
+Anchor it to what IS faculty own — **verification & validation, software QA, acceptance/UAT, experimental design and statistical sampling, IS audit/controls** — extended to a non-deterministic system; and to the standards the governance courses touch: **NIST AI RMF + TEVV, ISO/IEC 23894 (AI risk management), ISO/IEC 42001 (AI management system), EU AI Act Article 15 (accuracy/robustness/cybersecurity for high-risk systems), OWASP LLM Top 10, MITRE ATLAS, and NCSC** guidance on prompt injection.
+
+**One-line summary:** traditional QA asks whether the software works *as specified*; enterprise AI assurance asks whether the system is *reliable, safe, secure, useful, auditable, and governed in the real context where it runs* — and keeps asking after launch.
+
+**Teaching note.** This is the most natural bridge to the govern/lead track and to advising. Run it as a studio exercise: a team takes one use case from the Design Canvas all the way to a go/no-go on the Release Readiness Scorecard, with named evidence for each cell.
+
+---
+
+# Part 11 — Value, use-case selection, and adoption
 
 The hard part of enterprise AI is rarely getting a model to answer; it is choosing *what* to build, justifying *why*, and sequencing the rollout so governance grows with capability. This part gives faculty the language to teach that — and a take-home artifact.
 
@@ -366,7 +429,7 @@ Because the cells *are* the stack, filling it in forces a participant to account
 
 ---
 
-# Part 11 — Live demos (run them yourself)
+# Part 12 — Live demos (run them yourself)
 
 The deck is the show; eight **progressive live demos** let participants *do* and *observe*. They run locally in Docker — one command, `docker compose up`, then open `http://localhost:8501`, **pick a provider (OpenAI or Anthropic/Claude)**, and paste the workshop key into the sidebar. Each level adds roughly one capability and lights up more of the 7-layer stack, so the progression itself teaches the architecture. (Facilitator setup and management: see the separate *Live Demos — Facilitator Guide*.)
 

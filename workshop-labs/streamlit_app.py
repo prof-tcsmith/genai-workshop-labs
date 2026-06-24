@@ -23,6 +23,7 @@ labs = [
     ("pages/2_Build_and_break_RAG.py", "2 · Build & break a RAG", "Layers 4 & 6", "Build a tiny retrieval pipeline, then sabotage it and watch quality collapse."),
     ("pages/3_Agent_loop.py", "3 · Agent loop with tools", "Layer 2", "Give a goal; watch plan → tool → observe → loop. Toggle the approval gate."),
     ("pages/4_Red_team.py", "4 · Red-team & govern an agent", "Layer 7", "Attack an HR-policy agent, then switch on controls and watch attacks fail."),
+    ("pages/5_Evaluate_and_validate.py", "5 · Evaluate & validate", "Layer 7", "Run a golden-set eval, an LLM-as-judge, and an abstention check — then a go/no-go."),
 ]
 for path, label, layer, desc in labs:
     with st.container(border=True):
