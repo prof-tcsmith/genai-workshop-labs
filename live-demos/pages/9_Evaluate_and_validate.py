@@ -190,10 +190,13 @@ if st.button("Judge a sample answer"):
             {"role": "system", "content": "You are a strict evaluator. Decide if the ANSWER is fully supported by the SOURCE. Reply on the first line with exactly GROUNDED or NOT GROUNDED, then one sentence of justification."},
             {"role": "user", "content": f"SOURCE:\n{ctx}\n\nQUESTION: {q}\nANSWER: {ans}"},
         ]
+        st.markdown(f"**Question:** {esc(q)}")
+        st.markdown(f"**Answer being graded:** _{esc(ans.strip())}_")
+        with st.expander("📄 Source the judge grades the answer against"):
+            st.code(ctx[:900] or "(none)")
         verdict = chat(client, jmsgs, max_tokens=120).choices[0].message.content or ""
         grounded = "not grounded" not in verdict.lower() and "grounded" in verdict.lower()
-        st.caption(f"Judging the answer to: *{esc(q)}*")
-        (st.success if grounded else st.error)(f"**Judge:** {esc(verdict.strip())}")
+        (st.success if grounded else st.error)(f"**Judge's verdict:** {esc(verdict.strip())}")
         st.caption("⚠️ This verdict is itself an LLM output — sample-check it against human labels and revalidate periodically.")
 
 # ---------------------------------------------------------------- 3) go / no-go
