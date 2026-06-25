@@ -11,8 +11,8 @@ Everything is organized around one map: the **7-layer enterprise AI stack**.
 
 | Folder | What it is | Run it |
 |---|---|---|
-| **`live-demos/`** | Five progressive live demos (chatbot → memory+guardrails → context → MCP+tools → A2A+governance) | `cd live-demos && docker compose up` |
-| **`workshop-labs/`** | Self-driven Streamlit hands-on labs (grounding, build-and-break RAG, agent loop, red-team) | `streamlit run workshop-labs/streamlit_app.py` or host it |
+| **`live-demos/`** | **The building blocks** — 9 progressive steps (chatbot → memory → guardrails → grounding/RAG → build-and-break RAG → tools/agent loop → multi-agent+governance → red-team → evaluate & validate) | `cd live-demos && docker compose up`, or hosted on Streamlit Cloud |
+| **`course-content-studio/`** | **The capstone** — turns your course materials into a Canvas-ready quiz using a real vector DB, database, and MCP service | `streamlit run course-content-studio/app.py` or host it |
 | **`mcp-lab/`** | An MCP tool server (advanced) | see `mcp-lab/README.md` |
 | **`docs/`** | The slide deck + a browser prompt lab (served via GitHub Pages) | open `docs/index.html` |
 

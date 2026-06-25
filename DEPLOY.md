@@ -3,53 +3,60 @@
 Repo: **https://github.com/prof-tcsmith/genai-workshop-labs** (public, no keys inside).
 Provide the OpenAI key at runtime — never commit it.
 
+## What participants use — two apps
+1. **🧱 Building blocks** — `live-demos/app.py` — the 9 progressive steps (chatbot → memory →
+   guardrails → grounding/RAG → build-and-break RAG → tools/agent loop → multi-agent+governance →
+   red-team → evaluate & validate).
+2. **🎓 Course Content Studio** — `course-content-studio/app.py` — the capstone (RAG + Postgres +
+   MCP → a Canvas-ready quiz).
+
+The GitHub Pages hub at **https://prof-tcsmith.github.io/genai-workshop-labs/** routes participants
+to these two.
+
+> The old `workshop-labs/` Streamlit app was **retired** — it duplicated five of the building-blocks
+> levels and added no new topic. Don't redeploy it.
+
 ## Layout
 ```
-live-demos/      # 5 progressive demos (Docker)         → run locally
-workshop-labs/   # Streamlit hands-on labs              → Streamlit Community Cloud
-docs/            # slide deck + browser prompt lab      → GitHub Pages (/docs)
-mcp-lab/         # MCP tool server (advanced)           → Cloud Run / local Docker
+live-demos/             # 🧱 the 9 building blocks          → Streamlit Cloud / local Docker
+course-content-studio/  # 🎓 the capstone (RAG+PG+MCP)      → Streamlit Cloud / local
+docs/                   # slide deck + browser prompt lab   → GitHub Pages (/docs)
+mcp-lab/                # MCP tool server (advanced)        → Cloud Run / local Docker
 ```
 
-## live-demos (local Docker — the headline)
+## Streamlit Community Cloud (free) — both apps
+For each app: https://share.streamlit.io → **New app** → repo `prof-tcsmith/genai-workshop-labs`,
+branch `main`, **Main file path** = `live-demos/app.py` (building blocks) **or**
+`course-content-studio/app.py` (capstone).
+
+**Settings → Secrets** (these live only in Cloud, never in git):
+```toml
+openai_api_key = "sk-..."                       # the workshop key
+workshop_passphrase_sha256 = "<64-char hash>"   # SHA-256 of the participant code, NOT the code
+```
+Generate the hash (hand the *plain* code to attendees, store only its hash):
+```bash
+printf '%s' 'your-participant-code' | shasum -a 256
+```
+The participant-code gate turns on **only** when `workshop_passphrase_sha256` is set, so local runs
+stay gate-free. **Pre-warm** each app right before the session (free apps sleep when idle).
+
+Current deployments:
+- 🧱 Building blocks: https://genai-workshop-labs-58vsud6bvuaus8e4wymwfu.streamlit.app/
+- 🎓 Course Content Studio: https://genai-workshop-labs-awybgq8gnmnrevxna2ukv3.streamlit.app/
+
+## Run locally (Docker)
 ```bash
 cd live-demos
 cp .env.example .env          # paste the key into .env (gitignored)
 docker compose up --build     # http://localhost:8501
 ```
-No `.env`? Attendees can paste the key in the sidebar instead.
-
-## workshop-labs → Streamlit Community Cloud (free)
-1. https://share.streamlit.io → New app → repo `prof-tcsmith/genai-workshop-labs`.
-2. **Main file path:** `workshop-labs/streamlit_app.py` · Branch `main`.
-3. **Settings → Secrets** (these live only in Cloud, never in git):
-   ```toml
-   openai_api_key = "sk-..."                  # the workshop key
-   workshop_passphrase_sha256 = "<64-char hash>"   # SHA-256 of the passphrase, NOT the phrase
-   ```
-   Generate the hash (hand the *plain* passphrase to attendees, store only its hash):
-   ```bash
-   printf '%s' 'your-passphrase' | shasum -a 256
-   ```
-4. Deploy; **pre-warm** it right before the session (free apps sleep when idle).
-
-## live-demos → Streamlit Community Cloud (free, second app)
-Host the 5 progressive demos on Cloud too (in addition to / instead of local Docker):
-1. https://share.streamlit.io → New app → repo `prof-tcsmith/genai-workshop-labs`.
-2. **Main file path:** `live-demos/app.py` · Branch `main`.
-3. **Settings → Secrets:**
-   ```toml
-   openai_api_key = "sk-..."                       # the workshop key (lives only in Cloud)
-   workshop_passphrase_sha256 = "<64-char hash>"   # participant code, hashed (see above)
-   ```
-   The participant-code gate turns on **only** when `workshop_passphrase_sha256` is set,
-   so local Docker stays gate-free. The OpenAI key is read from Secrets (never committed).
-4. Deploy; **pre-warm** before the session.
+No `.env`? Paste the key in the sidebar instead. Course Content Studio also needs Pinecone +
+Neon/Postgres — see `course-content-studio/SETUP.md`.
 
 ## docs → GitHub Pages (free)
 1. Repo **Settings → Pages → Deploy from a branch** → branch `main`, folder **`/docs`**.
 2. Site: **https://prof-tcsmith.github.io/genai-workshop-labs/**
-3. Edit `docs/index.html`: replace `REPLACE_WITH_STREAMLIT_URL` with the Streamlit app URL above.
 
 ## mcp-lab (optional, advanced)
 ```bash

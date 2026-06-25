@@ -99,5 +99,5 @@ Three options, easiest first:
 
 - **Deck** — the "Five live demos" slide near the end points here.
 - **Companion** — Part 10 describes each level and what to observe.
-- **`workshop-labs/`** — self-driven hands-on *exercises* (Streamlit + a browser prompt lab); these live demos are the guided *observe-the-progression* counterpart.
+- **`course-content-studio/`** — the capstone: the same building blocks assembled into a real tool (vector DB + database + MCP) that turns course materials into a Canvas quiz.
 - **`mcp-lab/`** — the real MCP protocol over Docker, for anyone who wants Level 4 at protocol depth.
