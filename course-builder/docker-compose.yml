@@ -20,7 +20,9 @@ services:
   app:
     build: ./app
     ports:
-      - "8501:8501"
+      # Host port is overridable (set APP_PORT) so it won't clash with another
+      # Streamlit app already on 8501. Defaults to 8501.
+      - "${APP_PORT:-8501}:8501"
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
       - MCP_SERVER_URL=http://mcp-server:8000/mcp
