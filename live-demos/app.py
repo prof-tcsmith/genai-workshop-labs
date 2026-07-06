@@ -10,15 +10,47 @@ render_key_sidebar()
 st.title("🧱 The journey — 11 dimensions of GenAI, stop by stop")
 st.write(
     "The intro slides gave you the **goals**, the **7-layer stack**, and the **eleven dimensions**. "
-    "This app is where the journey happens: each stop below demonstrates one or more dimensions **live**, "
-    "adds **one** capability, and names what's still missing — which sets up the next stop. "
-    "Pick a provider and paste the workshop key in the sidebar, then walk the stops in order."
+    "This app is where the journey happens: each level demonstrates one or more dimensions **live**, "
+    "adds **one** capability, and names what's still missing — which sets up the next. "
+    "Pick a provider and paste the workshop key in the sidebar, then follow **today's route** below "
+    "(the full map underneath is yours to explore any time)."
 )
 
 if st.session_state.get("key"):
-    st.success("Key connected — start at **1. Chatbot** in the sidebar, or from the list below.")
+    st.success("Key connected — follow **Today's route** below, starting at Stop 1.")
 else:
     st.info("⬅️ Pick a provider and paste the workshop key in the sidebar to begin.")
+
+# ---- Today's route: the 60-minute hands-on session makes FIVE stops on the map.
+# Each stop opens by breaking the previous one: forgets → answers anything →
+# can't prove it → can't act → can't govern the actor. (Additive — the full
+# 9-level itinerary below is unchanged for explorers.)
+ROUTE = [
+    ("Stop 1", "A model becomes an app", "Levels 1–2", "pages/1_1._Chatbot.py",
+     "steer it with context — then make it remember"),
+    ("Stop 2", "It will answer anything", "Level 3", "pages/3_3._Guardrails.py",
+     "scope it + an independent pre-flight check"),
+    ("Stop 3", "Ground it — then break it", "Levels 4–5", "pages/4_4._Grounding_and_RAG.py",
+     "cite & abstain — then watch bad data break it"),
+    ("Stop 4", "It knows, but can't act", "Level 6", "pages/6_6._Tools_and_the_agent_loop.py",
+     "the agent loop, with a human approval gate"),
+    ("Stop 5", "Agents over MCP ⛰️", "Level 7", "pages/7_7._Multi-agent_and_governance.py",
+     "A2A specialists + RBAC + audit — the summit"),
+]
+st.markdown("### 🗺️ Today's route — five stops")
+cols = st.columns(5)
+for col, (stop, title, levels, path, hook) in zip(cols, ROUTE):
+    with col, st.container(border=True):
+        st.markdown(f"**{stop}**  \n**{title}**")
+        st.caption(f"{levels} · {hook}")
+        st.page_link(path, label="Go →")
+st.caption(
+    "**Finale (watch):** 8 · Red-team — the attacks, stopped by governance. "
+    "**Take home:** 9 · Evaluate & validate, the browser prompt lab, and both applied cases below."
+)
+
+st.divider()
+st.markdown("### The full map — all nine levels (+ the browser interlude)")
 
 # The itinerary. Stop numbers match the sidebar; the dimension numbers match the
 # intro deck's "Eleven dimensions" slide. (None = the browser interlude.)
