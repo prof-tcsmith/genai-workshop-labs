@@ -110,14 +110,25 @@ In the live demos, **pick a provider and paste the key** in the left sidebar (un
 - **Lab 5 — Agents over MCP + A2A (Multi-agent & governance):** run the refund workflow; approve/deny the gated action; read the audit log.
 - **Take-home — Red-team & govern:** run an attack preset, then enable controls one at a time and watch defense-in-depth hold.
 
-### 6. (Advanced, optional) The capstone — Course Content Studio
+### 6. (Optional) The Case — the five labs, assembled
+The **Prior-Authorization Triage** Case (`prior-auth-agent/`) puts all five labs together into one
+agentic workflow: specialist agents over **A2A** reach tools through a **real MCP server**, decide a
+*synthetic* coverage request grounded in retrieved policy, an **LLM critic** checks the draft, and a
+**human approves** before anything is finalized — with a full audit log. Run it with Docker (OpenAI key only):
+```bash
+cd prior-auth-agent
+docker compose up
+```
+*Synthetic data — a demonstration of AI system architecture, not medical advice.*
+
+### 7. (Advanced, optional) Course Content Studio
 The **Course Content Studio** app turns your slides/readings into a Canvas-importable quiz. It
 uses real backing services (a vector DB + a database), so it's **not** part of the Docker bundle:
 - **Easiest:** use the **hosted version** (the facilitator shares the URL + a participant code).
 - **Run it locally:** it needs your own **Pinecone** + **Neon** (both free tiers) — paste the keys
   in its **🔌 Connections** sidebar. Step-by-step: `course-content-studio/SETUP.md`.
 
-### 7. Stop and clean up
+### 8. Stop and clean up
 - Stop: press **Ctrl-C** in the terminal.
 - Remove the containers: `docker compose down`.
 
