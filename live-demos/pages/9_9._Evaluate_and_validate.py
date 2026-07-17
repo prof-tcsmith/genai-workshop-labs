@@ -1,4 +1,4 @@
-"""Level 9 — Evaluate & validate (release readiness).
+"""Evaluate & validate (release readiness).
 
 The last building block. A demo proves an AI app works ONCE; validation measures
 that it's good enough — with evidence, against a bar set in advance. This level
@@ -20,10 +20,10 @@ IMPACT = {"low": "🟢 Minor", "medium": "🟡 Serious", "high": "🔴 Critical"
 IMPACT_WORD = {"low": "minor", "medium": "serious", "high": "critical"}
 CONTRAST_Q = "What is Northwind Cloud's enterprise refund window, in days?"  # for the grounded-vs-not demo
 
-st.title("Level 9 · Evaluate & validate — is it ready to ship?")
+st.title("9 · Evaluate & validate — is it ready to ship?")
 layer_badge([7])
 st.caption("🧭 **Beyond the 11 — validation:** you don't prove it correct; you measure it's good enough to ship.")
-st.caption("Layer 7 · Measure properties over a representative set, against thresholds set in advance — then decide on evidence.")
+st.caption("Measure properties over a representative set, against thresholds set in advance — then decide on evidence.")
 render_slides("validate")
 
 
@@ -219,7 +219,7 @@ else:
         "evidence means abstain or ask a human, even when the test passes."
     )
     st.markdown(
-        "This is **one slice** of release readiness. Still required: **security / red-team** (Level 8), a "
+        "This is **one slice** of release readiness. Still required: **security / red-team** (the red-team lab), a "
         "baseline comparison, staged rollout (shadow → canary → full), monitoring + rollback, and sign-offs."
     )
     st.link_button("📋 Capture the full decision on the Release Readiness Scorecard (in the deck ↗)", SCORECARD_URL)

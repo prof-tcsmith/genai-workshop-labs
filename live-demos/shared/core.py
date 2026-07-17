@@ -248,8 +248,10 @@ def boot(title: str):
 
 
 def layer_badge(layers: list[int]) -> None:
-    chips = " · ".join(f"**{i}** {STACK[i]}" for i in layers)
-    st.caption("🧱 Layers in play: " + chips)
+    # Retained as a no-op so existing page imports/calls keep working. The
+    # layer/dimension framing was dropped for the GenAI Day edition
+    # (the intro deck no longer introduces it), so nothing is rendered.
+    return None
 
 
 def _bump() -> None:

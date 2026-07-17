@@ -5,13 +5,13 @@ Everything runs in your browser or in Docker. **You supply your own OpenAI API k
 no key is included in this repository. The facilitator will hand one out at the session
 (or use your own); paste it where prompted, or set it locally as described below.
 
-Everything is organized around one map: the **7-layer enterprise AI stack**.
+A GenAI system is assembled from a handful of core components — the **building blocks of GenAI**.
 
 ## What's here
 
 | Folder | What it is | Run it |
 |---|---|---|
-| **`live-demos/`** | **The building blocks** — 9 progressive steps (chatbot → memory → guardrails → grounding/RAG → build-and-break RAG → tools/agent loop → multi-agent+governance → red-team → evaluate & validate) | `cd live-demos && docker compose up`, or hosted on Streamlit Cloud |
+| **`live-demos/`** | **The building blocks** — five labs, each breaking the one before (chatbot+memory → guardrails → grounding/RAG & build-and-break → tools/agent loop → multi-agent+governance), plus two take-home labs (red-team → evaluate & validate) | `cd live-demos && docker compose up`, or hosted on Streamlit Cloud |
 | **`course-content-studio/`** | **The capstone** — turns your course materials into a Canvas-ready quiz using a real vector DB, database, and MCP service | `streamlit run course-content-studio/app.py` or host it |
 | **`mcp-lab/`** | An MCP tool server (advanced) | see `mcp-lab/README.md` |
 | **`docs/`** | The slide deck + a browser prompt lab (served via GitHub Pages) | open `docs/index.html` |
@@ -31,7 +31,7 @@ docker compose up
 Paste the OpenAI key into `.env` after copying it (or paste it in the app sidebar later);
 `docker compose up` pulls the prebuilt images from Docker Hub.
 Then open **http://localhost:8501** (live demos) and **http://localhost:8000** (MCP lab).
-Walk Levels 1 → 5; each adds one capability and lights up more of the stack.
+Walk Labs 1 → 5; each breaks the one before and assembles another building block.
 Stop with **Ctrl-C**; `docker compose down` to remove the containers.
 
 ## Your OpenAI key

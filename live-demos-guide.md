@@ -1,22 +1,24 @@
 # Live Demos — Facilitator Guide
 
-**For:** Tim Smith · Companion to the five progressive live demos (`live-demos/`)
+**For:** Tim Smith · Companion to the five live-demo labs (`live-demos/`)
 
-This guide is for **setting up and running the live-demo portion** of the workshop. The demos are the "do/observe" counterpart to the deck: five Dockerized levels that each add one capability and light up more of the 7-layer stack. Attendees paste a shared OpenAI key and watch (or drive) each level.
+This guide is for **setting up and running the live-demo portion** of the workshop. The demos are the "do/observe" counterpart to the deck: nine pages grouped into **five labs** that each add one capability, assembling a GenAI system one building block at a time. Attendees paste a shared OpenAI key and watch (or drive) each lab.
 
 ---
 
 ## 1. What you're running
 
-One Streamlit app, five pages (Levels 1 → 5), in a single Docker container:
+One Streamlit app — **nine demo pages grouped into five labs** (plus two take-home labs) — in a single Docker container. Each lab breaks the one before it: it forgets → it answers anything → it can't prove it → it can't act → nobody governs the actor.
 
-| Level | Demonstrates | Layers | New vs. previous level |
+| Lab | Pages | Demonstrates | New vs. previous lab |
 |---|---|---|---|
-| 1 · Chatbot | system prompt + message | 1, 3 | the baseline |
-| 2 · Memory + guardrails | conversation memory; scoped support bot; guardrail you can toggle | 1, 3, 7 | memory + guardrails |
-| 3 · Context engineering | retrieval + assembled context; grounded, cited answers | 4, 6 | an information store |
-| 4 · MCP + tools | tool-using agent over an MCP-style server | 2, 5 | tools / the ability to act |
-| 5 · A2A + governance | multi-agent collaboration under RBAC, approval gate, audit log | 2, 7 | multiple agents + governance |
+| 1 · A model becomes an app | Chatbot · Memory | system prompt + message; then conversation history replayed each turn | the baseline, then memory |
+| 2 · It will answer anything | Guardrails | a scoped support bot **plus** an independent pre-flight check | layered guardrails |
+| 3 · Ground it — then break it | Grounding & RAG · Build & break a RAG | retrieval + assembled context, grounded/cited answers; then sabotage the pipeline | an information store (RAG) |
+| 4 · It knows, but can't act | Tools & the agent loop | a tool-using agent (plan → call → observe) with a human approval gate | tools / the ability to act |
+| 5 · Agents over MCP + A2A | Multi-agent & governance | specialist agents over A2A, tools via a **real MCP server**, under RBAC + approval + audit | multiple agents + MCP + governance |
+
+**Take-home (not walked live):** *Red-team & govern* (attack the controls, then switch them on) and *Evaluate & validate* (release readiness). Both stay live for attendees to explore.
 
 Architecture, kept deliberately simple: a single container; retrieval uses an **in-memory** index over OpenAI embeddings (no external database); the MCP server and the multiple agents run **in-process** (the standalone real-protocol MCP server is in `mcp-lab/`). The only external dependency is the OpenAI API.
 
@@ -37,7 +39,7 @@ cd live-demos
 docker compose up --build       # first build ~1–2 min; later runs are instant
 ```
 
-Open **http://localhost:8501**, paste the OpenAI key in the sidebar, and walk Levels 1 → 5.
+Open **http://localhost:8501**, paste the OpenAI key in the sidebar, and walk Labs 1 → 5.
 
 - Stop: `Ctrl-C`. Remove the container: `docker compose down`.
 - No Docker? `pip install -r requirements.txt && streamlit run app.py`.
@@ -45,19 +47,17 @@ Open **http://localhost:8501**, paste the OpenAI key in the sidebar, and walk Le
 
 ---
 
-## 4. Running each level live (what to point out)
+## 4. Running each lab live (what to point out)
 
-**Level 1 — Chatbot.** Send a message; expand "Exactly what is sent to the model" to show it's just a system prompt + a user turn. Change the system prompt ("answer only in haiku") and resend. Then send a follow-up and note it has *no memory*. Takeaway: a bare chatbot is configuration over a model call.
+**Lab 1 — A model becomes an app (Chatbot → Memory).** On *Chatbot*, send a message; expand "Exactly what is sent to the model" to show it's just a system prompt + a user turn. Change the system prompt ("answer only in haiku") and resend; then send a follow-up and note it has *no memory*. On *Memory*, the same idea plus the conversation history replayed each turn — a follow-up like "and how do I undo that?" now works (open the memory expander). Takeaway: an app is configuration over a model call; memory is that history, re-sent every turn (and it isn't free).
 
-**Level 2 — Memory + guardrails.** Ask a Northwind support question, then a follow-up like "and how do I undo that?" — memory lets it follow along (open the memory expander). Then ask something off-topic ("write me a poem") with **guardrails ON** (blocked) vs **OFF** (it wanders). Takeaway: memory and guardrails are additions you choose, and governance starts here.
+**Lab 2 — It will answer anything (Guardrails).** The bot is scoped to Northwind support. Ask a Northwind question, then ask something off-topic ("write me a poem") with **guardrails ON** (an independent pre-flight check blocks it) vs **OFF** (it wanders). Invite attendees to sneak past it. Takeaway: a scoped prompt isn't enough — you add a separate check, and governance starts here.
 
-**Level 3 — Context engineering.** Ask "how long do enterprise customers have for a refund?" Show the retrieved chunks, then the **assembled prompt** (the engineered context), then the grounded, cited answer. Tick "show the ungrounded answer" to contrast. Takeaway: retrieval quality dominates output quality.
+**Lab 3 — Ground it, then break it (Grounding & RAG → Build & break a RAG).** On *Grounding & RAG*, ask "how long do enterprise customers have for a refund?" Show the retrieved chunks, then the **assembled prompt** (the engineered context), then the grounded, cited answer; tick "show the ungrounded answer" to contrast. On *Build & break a RAG*, use the sliders to sabotage chunking / stale docs / a permission leak and watch quality collapse with the model untouched. Takeaway: most RAG failures are **data** failures.
 
-**Level 4 — MCP + tools.** Show the server's tool catalog, then run "Is order 4471 within the refund window?" Watch the client↔server tool-call trace (request/response) before the final answer. Takeaway: adding a capability is adding a *tool to a server*, not changing the model.
+**Lab 4 — It knows, but can't act (Tools & the agent loop).** Run "Is order 4471 within the refund window?" Watch the agent loop (plan → call a tool → observe), then the irreversible write held at a **human approval gate** — approve, deny, or let it run autonomously. Takeaway: adding a capability is adding a *tool*, with the risky action gated by a human.
 
-**Level 5 — A2A + governance.** Run the refund workflow for order 4471. Show the A2A message timeline, the RBAC table (only the action agent may issue a refund — expand "prove RBAC" to see a read-side write blocked), the **approval gate** (nothing executes until you click Approve), and the audit log. Takeaway: autonomy made safe with Layer-7 controls.
-
-Each page shows a **"layers in play"** badge so the tie back to the deck's stack is explicit.
+**Lab 5 — Agents over MCP + A2A (Multi-agent & governance).** Run the refund workflow for order 4471. Show the A2A message timeline, the tools reaching a **real MCP server**, the RBAC table (only the action agent may issue a refund — expand "prove RBAC" to see a read-side write blocked), the **approval gate** (nothing executes until you click Approve), and the audit log. Takeaway: capability is not authorization — autonomy made safe with governance controls.
 
 ---
 
@@ -69,7 +69,7 @@ Each page shows a **"layers in play"** badge so the tie back to the deck's stack
 - **Revoke the key right after the workshop.**
 - Optional: to skip the paste, set `openai_api_key` in `.streamlit/secrets.toml` (see `live-demos/.streamlit` patterns), but pasting is the default.
 
-Rough cost: each level is a handful of small `gpt-4o-mini` calls; a room of faculty clicking through all five levels is typically a few dollars, not tens.
+Rough cost: each lab is a handful of small `gpt-4o-mini` calls; a room of faculty clicking through all five labs is typically a few dollars, not tens.
 
 ---
 
@@ -97,7 +97,7 @@ Three options, easiest first:
 
 ## 8. How this fits the rest of the kit
 
-- **Deck** — the "Five live demos" slide near the end points here.
-- **Companion** — Part 10 describes each level and what to observe.
-- **`course-content-studio/`** — the capstone: the same building blocks assembled into a real tool (vector DB + database + MCP) that turns course materials into a Canvas quiz.
-- **`mcp-lab/`** — the real MCP protocol over Docker, for anyone who wants Level 4 at protocol depth.
+- **Deck** — the live-demos slide points here.
+- **`prior-auth-agent/`** — the applied **Case**: the five labs assembled into one agentic workflow (Prior-Authorization Triage) — specialist agents over A2A + a real MCP server, RAG-grounded, LLM-critic evaluation, human approval gate + audit. Runs via Docker; synthetic data.
+- **`course-content-studio/`** — a larger applied build (vector DB + database + MCP) that turns course materials into a Canvas quiz.
+- **`mcp-lab/`** — the real MCP protocol over Docker, for anyone who wants Lab 5's tools/MCP at protocol depth.

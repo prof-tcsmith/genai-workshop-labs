@@ -1,4 +1,4 @@
-# MCP tool server (advanced lab — Layer 2)
+# MCP tool server (advanced lab)
 
 A tiny **Model Context Protocol** server that exposes mock enterprise tools
 (`get_order`, `list_orders`, `search_policy`). The model lives in the *client*;

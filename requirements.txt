@@ -17,3 +17,4 @@ lxml>=5.0
 tiktoken>=0.7
 mcp>=1.2
 httpx>=0.27
+# rebuild-stamp: v1.3 — GenAI Day de-legacy release (2026-07-16)

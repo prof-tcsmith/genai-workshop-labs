@@ -446,8 +446,8 @@ function DArrow({x1,y1,x2,y2,color=C.faint,label,lx,ly}){
 function Arch() {
   return html`<div class="arch">
     <svg viewBox="0 0 720 210" role="img">
-      ${Box({x:24,y:24,w:200,h:46,lines:["System prompt","(Layer 3)"],accent:C.accent2,fs:12})}
-      ${Box({x:24,y:120,w:200,h:46,lines:["User message","(Layer 1)"],accent:C.accent,fs:12})}
+      ${Box({x:24,y:24,w:200,h:46,lines:["System prompt"],accent:C.accent2,fs:12})}
+      ${Box({x:24,y:120,w:200,h:46,lines:["User message"],accent:C.accent,fs:12})}
       ${Box({x:330,y:62,w:180,h:66,lines:["LLM","(gpt-4o-mini)"],accent:C.violet})}
       ${DArrow({x1:224,y1:47,x2:330,y2:84,label:"steer",lx:286,ly:54})}
       ${DArrow({x1:224,y1:143,x2:330,y2:106,label:"ask",lx:286,ly:142})}
@@ -479,14 +479,14 @@ function PersonaViz() {
 }
 
 const TOPIC = {
-  kicker: "Level 1 · Chatbot · Layers 1 & 3",
+  kicker: "Chatbot · a model becomes an app",
   slides: [
     { h: "ChatGPT is an app, not the model", tag: "the reframe",
-      sub: "The LLM is one layer inside the app. The simplest app is a system prompt + your message.",
+      sub: "The LLM is one component inside the app. The simplest app is a system prompt + your message.",
       bullets: [
         "<b>ChatGPT</b> is an application; <b>gpt-4o-mini</b> is just the model it calls.",
         "An app wraps the model with <b>standing instructions</b> + <b>what you type</b>.",
-        "The simplest app: <b>system prompt</b> (Layer 3) + <b>user prompt</b> (Layer 1) → model.",
+        "The simplest app: <b>system prompt</b> + <b>user prompt</b> → model.",
         "Here there is no extra code — <b>you are the app</b>, assembling the two messages.",
       ] },
 
@@ -502,8 +502,8 @@ const TOPIC = {
 
     { h: "How it works", tag: "the mechanism",
       bullets: [
-        "<b>System prompt</b> = how you steer the model (Layer 3).",
-        "<b>User message</b> = what the person types (Layer 1).",
+        "<b>System prompt</b> = how you steer the model.",
+        "<b>User message</b> = what the person types.",
         "The <b>app</b> sends both to the model, which sees <b>only these two</b>.",
         "It is <b>stateless</b> — nothing carries over between sends.",
       ] },
@@ -519,10 +519,10 @@ const TOPIC = {
 
     { h: "Where it breaks", tag: "the catch",
       warn: "<b>No memory</b> — each request is independent; send another message and it can't recall this one.",
-      next: "Level 2 — Memory" },
+      next: "Next — Memory" },
 
     { h: "Why it matters", tag: "the principle",
-      note: "Most 'AI features' are just <b>an app wrapping the model</b> — at its simplest, a system prompt + a message. Understanding this baseline makes the next seven levels legible: every layer you add is a deliberate answer to a limit you just saw here, starting with memory." },
+      note: "Most 'AI features' are just <b>an app wrapping the model</b> — at its simplest, a system prompt + a message. Understanding this baseline makes everything that follows legible: every component you add is a deliberate answer to a limit you just saw here, starting with memory." },
   ],
 };
 /* ====================== CONTENT END ====================== */

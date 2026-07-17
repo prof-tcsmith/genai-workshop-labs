@@ -1,4 +1,4 @@
-"""MCP tool server for Level 7 — the refund tools, decoupled behind FastMCP.
+"""MCP tool server for the multi-agent demo — the refund tools, decoupled behind FastMCP.
 
 The multi-agent refund demo (``pages/7``) no longer calls Python functions
 directly; it speaks the **MCP protocol** to THIS server — in-process by default

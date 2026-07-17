@@ -6,9 +6,9 @@ from shared.slides import render_slides
 
 client = boot("Build & break a RAG")
 
-st.title("Level 5 · Build & break a RAG")
+st.title("5 · Build & break a RAG")
 layer_badge([4, 6])
-st.caption("🧭 **Dimension 5 of 11 — data access:** retrieval quality is data quality.")
+st.caption("🧭 **Data access:** retrieval quality is data quality.")
 st.caption("Layers 4 & 6 · Build a tiny retrieval pipeline, then sabotage it and watch quality collapse.")
 render_slides("build-break-rag")
 
@@ -73,4 +73,4 @@ if st.button("Build index & answer", type="primary"):
 
 st.divider()
 st.info("Lesson: retrieval quality dominates output quality. Most RAG failures are data-engineering failures the pipeline simply exposes.")
-st.warning("**What's missing — your bot still can't ACT** (book, refund, update a record); it can only read + talk. **➡️ Level 6: Tools & the agent loop** lets it take actions safely.")
+st.warning("**What's missing — your bot still can't ACT** (book, refund, update a record); it can only read + talk. **➡️ Next — Tools & the agent loop** lets it take actions safely.")

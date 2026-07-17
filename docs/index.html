@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Dimensions of GenAI — the journey</title>
+<title>The Building Blocks of GenAI</title>
 <style>
   :root{--bg:#0b1020;--panel:#141d36;--panel2:#1b2748;--ink:#eaf0ff;--muted:#9fb0d6;--faint:#6b7aa3;
         --line:rgba(255,255,255,.14);--accent:#6ea8fe;--accent2:#5eead4;--violet:#a78bfa;--warn:#fbbf24;}
@@ -26,7 +26,7 @@
     font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
   .sectlabel::after{content:"";flex:1;height:1px;background:var(--line)}
 
-  /* primary: the journey card + the slides card */
+  /* primary: the labs card + the slides card */
   .path{display:grid;grid-template-columns:1.35fr 1fr;gap:14px;align-items:stretch}
   @media(max-width:760px){.path{grid-template-columns:1fr}}
   .track{display:block;text-decoration:none;color:inherit;background:linear-gradient(180deg,var(--panel),var(--panel2));
@@ -63,9 +63,9 @@
 <div class="wrap">
 
   <span class="kicker">USF Muma College of Business · Tim Smith</span>
-  <h1>Dimensions of <span style="background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent">GenAI</span> — the journey</h1>
-  <p class="sub">Eleven dimensions of a real GenAI system, walked as <b>ten hands-on stops</b> — the same journey
-  from the session, here to replay at your own pace. A GenAI <i>application</i> is a system; the model is just
+  <h1>The Building Blocks of <span style="background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent">GenAI</span></h1>
+  <p class="sub">A real GenAI system is assembled from a <b>handful of core components</b>, walked as <b>five hands-on labs</b> —
+  the same session, here to replay at your own pace. A GenAI <i>application</i> is a system; the model is just
   one of its parts.</p>
 
   <div class="note">
@@ -74,57 +74,36 @@
     give one a few seconds to wake on first click.
   </div>
 
-  <!-- ============ THE JOURNEY ============ -->
-  <div class="sectlabel">Start here — the journey &amp; the slides</div>
+  <!-- ============ THE FIVE LABS ============ -->
+  <div class="sectlabel">Start here — the five labs &amp; the slides</div>
   <div class="path">
 
     <a class="track" href="https://muma-genai.streamlit.app/">
-      <div class="tag">The demos — 10 stops, 11 dimensions</div>
-      <h2>🧱 The journey (hands-on app)</h2>
-      <p>Every stop demonstrates one or more dimensions live, adds <b>one</b> capability, and names what's
-      still missing. The sidebar is numbered — walk it in order.</p>
+      <div class="tag">The demos — five hands-on labs</div>
+      <h2>🧱 The five labs (hands-on app)</h2>
+      <p>Each lab demonstrates its idea live, adds <b>one</b> capability, and names what's still missing —
+      then the next lab breaks it. The sidebar is numbered; walk it in order.</p>
       <p class="flow">
-        <span class="stopnum">1</span> Chatbot · <i>context engineering</i><br>
-        <span class="stopnum">2</span> Memory · <i>memory</i><br>
-        <span class="stopnum">3</span> Guardrails · <i>guardrails</i><br>
-        <span class="stopnum">4</span> Grounding &amp; RAG · <i>retrieval-augmented generation</i><br>
-        <span class="stopnum">5</span> Build &amp; break a RAG · <i>data access</i><br>
-        <span class="stopnum">🌐</span> Prompt lab (browser) · <i>structured outputs</i><br>
-        <span class="stopnum">6</span> Tools &amp; the agent loop · <i>tool use + approvals</i><br>
-        <span class="stopnum">7</span> Multi-agent &amp; governance · <i>MCP + logging + governance</i><br>
-        <span class="stopnum">8</span> Red-team &amp; govern · <i>governance, under attack</i><br>
-        <span class="stopnum">9</span> Evaluate &amp; validate · <i>beyond the 11: is it ready to ship?</i>
+        <span class="stopnum">1</span> A model becomes an app · <i>Chatbot · Memory</i><br>
+        <span class="stopnum">2</span> It will answer anything · <i>Guardrails</i><br>
+        <span class="stopnum">3</span> Ground it — then break it · <i>Grounding &amp; RAG · Build &amp; break a RAG</i><br>
+        <span class="stopnum">4</span> It knows, but can't act · <i>Tools &amp; the agent loop</i><br>
+        <span class="stopnum">5</span> Agents over MCP + A2A · <i>Multi-agent &amp; governance</i><br>
+        <span class="stopnum">🧰</span> Take-home · <i>Red-team &amp; govern · Evaluate &amp; validate · Prompt lab</i>
       </p>
-      <div class="go">Open the journey →</div>
+      <div class="go">Open the app →</div>
     </a>
 
     <a class="track cap" href="./day.html">
       <div class="tag">The session slides</div>
-      <h2>📽️ Dimensions of GenAI (60-min deck)</h2>
-      <p>The six slides that frame the journey: the goals, <b>tool → feature → system</b>, the
-      <b>7-layer stack</b>, and the numbered <b>11-dimension itinerary</b>.</p>
-      <p class="flow">Use them as your map while you replay the stops — every itinerary card points at
-      its demo.</p>
+      <h2>📽️ The Building Blocks of GenAI (60-min deck)</h2>
+      <p>The opening slides that frame the hour: why the buzzwords fade but the <b>fundamentals stay</b>, what
+      you'll build, and the five labs — the last slide launches the app.</p>
+      <p class="flow">Sit back and watch these first; from there on, <b>you</b> drive the labs.</p>
       <div class="go">Open the slides →</div>
     </a>
 
   </div>
-
-  <!-- ============ THE FRAMEWORK ============ -->
-  <div class="sectlabel">The map underneath it all — the 7-layer stack</div>
-  <div class="layers">
-    <span class="pill"><b>1</b> · Experience</span>
-    <span class="pill"><b>2</b> · Orchestration</span>
-    <span class="pill"><b>3</b> · Model</span>
-    <span class="pill"><b>4</b> · Retrieval &amp; context</span>
-    <span class="pill"><b>5</b> · Enterprise systems</span>
-    <span class="pill"><b>6</b> · Data foundation</span>
-    <span class="pill gov"><b>7</b> · Governance (every layer)</span>
-  </div>
-  <p class="sub" style="margin:6px 0 0;font-size:15px">Every dimension sits on a layer of this one map — the model
-  (layer 3) is the smallest part; the leverage is in retrieval, data, and governance. Note: layer 1 is the
-  <b>interface</b>, and it isn't necessarily human — another system calling your API, or your app exposed
-  <b>as an agent over A2A</b>, lives there too.</p>
 
   <!-- ============ GO DEEPER ============ -->
   <div class="sectlabel">Go deeper — the blocks become real applications</div>
@@ -137,29 +116,29 @@
       <em>docker compose up</em> with only an OpenAI key. Synthetic data; not medical advice.</p>
     </a>
     <a class="card" href="./deck.html">
-      <div class="layer">The full story · 42 slides</div>
+      <div class="layer">The full story · deep dive</div>
       <h3>📚 The complete deck</h3>
-      <p>The deep-dive the 60-minute session is drawn from — every layer, validation &amp; release, the
-      <b>Release Readiness Scorecard</b>, value &amp; adoption, and three worked cases.</p>
+      <p>The deep-dive the 60-minute session is drawn from — the full architecture, validation &amp; release, the
+      <b>Release Readiness Scorecard</b>, value &amp; adoption, and worked cases.</p>
       <div class="go">Open the full deck →</div>
     </a>
     <a class="card" href="./prompt-lab/">
-      <div class="layer">Stop 🌐 · browser-only</div>
+      <div class="layer">Take-home · browser-only</div>
       <h3>Prompt &amp; structured output lab</h3>
-      <p>The structured-outputs stop from the journey — iterate prompts and extract clean JSON, right here.</p>
+      <p>The structured-outputs lab — iterate prompts and extract clean JSON, right here.</p>
       <div class="go">Open the prompt lab →</div>
     </a>
     <a class="card" href="https://github.com/prof-tcsmith/genai-workshop-labs">
       <div class="layer">Source · run it all locally</div>
       <h3>GitHub repo</h3>
-      <p>Every app and deck. Clone it, <code>docker compose up</code>, and the whole journey runs on your
+      <p>Every app and deck. Clone it, <code>docker compose up</code>, and every lab runs on your
       machine — reuse any piece in your own courses.</p>
       <div class="go">View the repo →</div>
     </a>
     <a class="card" href="https://github.com/prof-tcsmith/genai-workshop-labs/tree/main/mcp-lab">
       <div class="layer">Advanced · protocol depth</div>
       <h3>MCP tool server (mcp-lab)</h3>
-      <p>Stops 6–7 showed tools over MCP; this runs a standalone MCP server in Docker for protocol-level
+      <p>Labs 4–5 showed tools over MCP; this runs a standalone MCP server in Docker for protocol-level
       exploration.</p>
       <div class="go">Setup instructions →</div>
     </a>

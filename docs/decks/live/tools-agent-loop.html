@@ -426,7 +426,7 @@ function Deck({ topic: T }) {
 /* ========================== END ENGINE ========================== */
 
 /* ====================== CONTENT START (author this region) ====================== */
-/* Level 6 — Tools & the agent loop: the model can now ACT.
+/* Tools & the agent loop — the model can now ACT.
    Arch = the loop: [LLM] → proposes tool call → [approval gate for writes]
    → [Tool / MCP server] → observed result → back to [LLM] → final answer.
    AgentLoop = interactive Plan → Call tool → Observe cycle (with a write that
@@ -507,7 +507,7 @@ function AgentLoop() {
 }
 
 const TOPIC = {
-  kicker: "Level 6 · Tools & the agent loop · Layers 2, 3, 5",
+  kicker: "Tools & the agent loop · it knows, but can't act",
   slides: [
     { h: "Tools & the agent loop",
       sub: "The model stops just answering — now it can ACT." },
@@ -543,7 +543,7 @@ const TOPIC = {
 
     { h: "Shortcoming", tag: "what's still missing",
       warn: "It's still a <b>single agent</b> with <b>no governance</b> — no separation of duties, no policy on which tools it may touch, and the approval gate is the <b>only</b> guardrail. Prompt injection &amp; excessive agency stay wide open.",
-      next: "Level 7 — Multi-agent & governance" },
+      next: "Multi-agent & governance" },
   ],
 };
 /* ====================== CONTENT END ====================== */

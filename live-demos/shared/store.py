@@ -1,6 +1,6 @@
 """In-memory document store + retrieval (OpenAI embeddings + NumPy cosine).
 
-Shared by Level 3 (context engineering) and Level 4 (a search_kb tool).
+Shared by the Guardrails and Grounding/RAG demos (a search_kb tool).
 No external vector DB — fits in RAM at demo scale.
 """
 from __future__ import annotations

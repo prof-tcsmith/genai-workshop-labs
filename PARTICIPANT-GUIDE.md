@@ -14,19 +14,24 @@ pick the provider in the app's sidebar. The facilitator will provide a key at th
 (or use your own). **The key is never stored in this repository** — you paste it in the
 sidebar, or put it in a gitignored local file.
 
-## Summary — the nine live demos
+## Summary — the five labs
 
-| Level | What you'll see | Stack layers |
-|---|---|---|
-| 1 · Chatbot | a system prompt + one message; no memory, no guardrails | 1, 3 |
-| 2 · Memory | the bot remembers the conversation (history replayed each turn) | 1, 3 |
-| 3 · Guardrails | a support bot with a fail-closed scope check you can watch fire | 1, 7 |
-| 4 · Grounding & RAG | model-alone vs. grounded + cited answers over a small corpus | 4, 6 |
-| 5 · Build & break a RAG | sabotage chunking / staleness / permissions and watch quality collapse | 4, 6 |
-| 6 · Tools & the agent loop | an agent calls tools in a plan→act→observe loop, with an approval gate | 2, 5 |
-| 7 · Multi-agent & governance | agents collaborate under RBAC, an approval gate, and an audit log | 2, 7 |
-| 8 · Red-team | run injection / exfiltration / unauthorized-write attacks, then enable controls | 7 |
-| 9 · Evaluate & validate | run a golden-set eval + LLM-as-judge + abstention check → a go/no-go | 7 |
+Each lab breaks the one before it — a working system, then the failure that forces the next piece.
+
+| Lab | What you'll see |
+|---|---|
+| 1 · A model becomes an app | a system prompt + one message — no memory, no guardrails — then the bot remembers the conversation (history replayed each turn); context + memory |
+| 2 · It will answer anything | a support bot with a fail-closed scope check you can watch fire; guardrails |
+| 3 · Ground it — then break it | model-alone vs. grounded + cited answers over a small corpus; then sabotage chunking / staleness / permissions and watch quality collapse |
+| 4 · It knows, but can't act | an agent calls tools in a plan→act→observe loop, with a human approval gate |
+| 5 · Agents over MCP + A2A | agents collaborate under RBAC, an approval gate, and an audit log |
+
+**Take-home deeper labs** (run these after the session):
+
+| Lab | What you'll see |
+|---|---|
+| Red-team & govern | run injection / exfiltration / unauthorized-write attacks, then enable controls |
+| Evaluate & validate | run a golden-set eval + LLM-as-judge + abstention check → a go/no-go |
 
 ---
 
@@ -95,17 +100,15 @@ a copyright banner and a line like `You can now view your Streamlit app … :850
 - **MCP lab (advanced):** http://localhost:8000
 
 In the live demos, **pick a provider and paste the key** in the left sidebar (unless you set
-`.env`), then use the sidebar to walk **Level 1 → Level 8**.
+`.env`), then use the sidebar to work through the **five labs in order** — each one breaks the one before.
 
-### 5. What to try at each level
-- **1 – Chatbot:** change the system prompt (e.g., "answer only in haiku"), resend; note it has no memory.
-- **2 – Memory:** ask a question, then a follow-up that depends on it — now it remembers.
-- **3 – Guardrails:** ask an on-topic question, then something off-topic with the guardrail ON vs OFF.
-- **4 – Grounding & RAG:** ask a policy question; compare the model-alone answer with the grounded, cited one.
-- **5 – Build & break a RAG:** flip the sabotage switches (tiny chunks / stale doc / restricted doc) and watch quality fall.
-- **6 – Tools & the agent loop:** run a task that needs a tool; watch the plan→call→observe trace and the approval gate.
-- **7 – Multi-agent & governance:** run the refund workflow; approve/deny the gated action; read the audit log.
-- **8 – Red-team:** run an attack preset, then enable controls one at a time and watch defense-in-depth hold.
+### 5. What to try in each lab
+- **Lab 1 — A model becomes an app (Chatbot + Memory):** change the system prompt (e.g., "answer only in haiku"), resend; note it has no memory. Then ask a question, then a follow-up that depends on it — now it remembers.
+- **Lab 2 — It will answer anything (Guardrails):** ask an on-topic question, then something off-topic with the guardrail ON vs OFF.
+- **Lab 3 — Ground it, then break it (Grounding & RAG):** ask a policy question; compare the model-alone answer with the grounded, cited one. Then flip the sabotage switches (tiny chunks / stale doc / restricted doc) and watch quality fall.
+- **Lab 4 — It knows, but can't act (Tools & the agent loop):** run a task that needs a tool; watch the plan→call→observe trace and the approval gate.
+- **Lab 5 — Agents over MCP + A2A (Multi-agent & governance):** run the refund workflow; approve/deny the gated action; read the audit log.
+- **Take-home — Red-team & govern:** run an attack preset, then enable controls one at a time and watch defense-in-depth hold.
 
 ### 6. (Advanced, optional) The capstone — Course Content Studio
 The **Course Content Studio** app turns your slides/readings into a Canvas-importable quiz. It

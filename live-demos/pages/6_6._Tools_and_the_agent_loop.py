@@ -1,8 +1,8 @@
-"""Level 6 · Tools & the agent loop — an agent that ACTS, on a leash.
+"""Tools & the agent loop — an agent that ACTS, on a leash.
 
 This page merges two ideas:
 
-  * Level 5's **MCP-style tool server** — the model is the MCP *client*; a small
+  * the earlier **MCP-style tool server** — the model is the MCP *client*; a small
     in-process *server* (`ToolServer`) advertises tools and executes them. We can
     watch every REQUEST/RESPONSE round-trip.
   * The workshop's **agent loop** — give the agent a goal and it runs
@@ -25,11 +25,11 @@ from shared import store
 from shared.core import boot, chat, layer_badge
 from shared.slides import render_slides
 
-client = boot("Level 6 · Tools & the agent loop")
+client = boot("6 · Tools & the agent loop")
 
-st.title("Level 6 · Tools & the agent loop")
+st.title("6 · Tools & the agent loop")
 layer_badge([2, 3, 5])
-st.caption("🧭 **Dimensions 7 & 9 of 11 — tool use + approvals:** the model acts — plan → call → observe, on a leash.")
+st.caption("🧭 **Tool use + approvals:** the model acts — plan → call → observe, on a leash.")
 st.caption(
     "The model can now **act**. It runs an **agent loop** — plan → call a tool → "
     "observe → repeat — over an MCP-style tool server, with a **human approval "
@@ -37,7 +37,7 @@ st.caption(
 )
 render_slides("tools-agent-loop")
 
-# --- Mock enterprise data the tools reach into (Layer 5) ----------------------
+# --- Mock enterprise data the tools reach into ------------------------------
 MOCK_ORDERS = {
     "4471": {"placed_days_ago": 12, "status": "delivered", "amount": 240.0, "customer_type": "enterprise"},
     "5012": {"placed_days_ago": 60, "status": "delivered", "amount": 90.0, "customer_type": "standard"},
@@ -183,7 +183,7 @@ class ToolServer:
             return {"expression": expression, "error": str(e)}
 
     def _issue_refund(self, order_id: str, amount: float) -> dict:
-        # Mock side effect — in a real system this would hit billing (Layer 5).
+        # Mock side effect — in a real system this would hit billing.
         return {"status": "refunded", "order_id": str(order_id).strip(), "amount": amount}
 
     def call_tool(self, name: str, args: dict) -> dict:
@@ -306,7 +306,7 @@ gate = st.toggle(
     help="When on, the loop pauses before any write tool (issue_refund) runs.",
 )
 goal = st.text_area(
-    "Goal for the agent (Layer 1 — what you want done)",
+    "Goal for the agent (what you want done)",
     "Decide whether order 4471 is within the refund window, and if so, issue the refund.",
     height=70,
 )
@@ -408,5 +408,5 @@ st.caption(
 st.warning(
     "**What's missing — it's a single agent with ad-hoc controls.** Real systems "
     "run multiple specialist agents and need real governance. "
-    "**➡️ Level 7: Multi-agent & governance.**"
+    "**➡️ Next — Multi-agent & governance.**"
 )

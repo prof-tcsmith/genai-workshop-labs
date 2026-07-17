@@ -1,4 +1,4 @@
-"""Level 4 · Grounding & RAG.
+"""Grounding & RAG.
 
 Teaching point: the same model, same question — answered from the MODEL ALONE
 vs. GROUNDED on retrieved chunks. Ungrounded answers are fluent but unverifiable
@@ -11,14 +11,14 @@ from shared import store
 from shared.core import boot, layer_badge, stream_assistant
 from shared.slides import render_slides
 
-client = boot("Level 4 · Grounding & RAG")
+client = boot("4 · Grounding & RAG")
 
-st.title("Level 4 · Grounding & RAG")
+st.title("4 · Grounding & RAG")
 layer_badge([3, 4, 6])
-st.caption("🧭 **Dimension 4 of 11 — retrieval-augmented generation:** retrieve → cite → abstain.")
+st.caption("🧭 **Retrieval-augmented generation (RAG):** retrieve → cite → abstain.")
 st.caption(
-    "Retrieve the right snippets (Layer 4) from a small information store (Layer 6), "
-    "then **ground** the model on them (Layer 3). Compare the model answering alone "
+    "Retrieve the right snippets from a small information store, "
+    "then **ground** the model on them. Compare the model answering alone "
     "vs. grounded + cited — same question, very different trust."
 )
 render_slides("grounding-rag")
@@ -92,6 +92,6 @@ if st.button("Answer both ways", type="primary") and question.strip():
 
 st.warning(
     "**What's missing — retrieval quality depends on your data + pipeline.** Bad chunking "
-    "or stale/leaky sources silently wreck the answer. **➡️ Level 5: Build & break a RAG** "
+    "or stale/leaky sources silently wreck the answer. **➡️ Next — Build & break a RAG.** "
     "shows exactly how."
 )

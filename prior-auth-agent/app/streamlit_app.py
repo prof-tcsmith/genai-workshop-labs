@@ -33,7 +33,7 @@ st.warning(
 with st.expander(f"🔌 Tools over MCP · {mcp_client.server_url()}", expanded=False):
     st.caption(
         "The agents never import the tool backends — they call these named tools over the network "
-        "(streamable-http). The same decoupling Lab 5 (Level 7) teaches: swap the backend, the "
+        "(streamable-http). The same decoupling Lab 5 teaches: swap the backend, the "
         "agents don't change."
     )
     try:

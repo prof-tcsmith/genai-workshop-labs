@@ -1,4 +1,4 @@
-"""SYNC client for the Level 7 refund MCP tools (``shared.mcp_tools``).
+"""SYNC client for the multi-agent refund MCP tools (``shared.mcp_tools``).
 
 The point of MCP here is *decoupling*: the app no longer calls tool functions
 directly — it speaks ONE standard protocol to a server that owns the tools. This

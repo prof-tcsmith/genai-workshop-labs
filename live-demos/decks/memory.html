@@ -513,7 +513,7 @@ function Viz() {
 }
 
 const TOPIC = {
-  kicker: "Level 2 · Memory · Layers 1 & 3",
+  kicker: "Memory · a model becomes an app",
   slides: [
     { h: "Add memory: a chatbot that remembers",
       sub: "From one-shot replies to a real conversation." },
@@ -523,7 +523,7 @@ const TOPIC = {
         "<b>Keeps the conversation</b> and replays the FULL history every turn.",
         "Each request carries the <b>system prompt + everything said so far</b>.",
         "So <b>follow-ups work</b> — \"and how do I undo that?\" resolves.",
-        "Level 1 sent a single message and <b>forgot it</b> immediately.",
+        "The bare chatbot sent a single message and <b>forgot it</b> immediately.",
       ] },
 
     { h: "Architecture", tag: "how it works", comp: Arch },
@@ -541,7 +541,7 @@ const TOPIC = {
 
     { h: "Where it falls short", tag: "the catch",
       warn: "It remembers, but there are NO guardrails — it will answer anything, on any topic, including off-topic or unsafe requests.",
-      next: "Level 3 — Guardrails" },
+      next: "Next — Guardrails" },
 
     { h: "Why it matters", tag: "the takeaway",
       note: "Memory is the difference between a stateless toy and an assistant that can actually hold a conversation." },

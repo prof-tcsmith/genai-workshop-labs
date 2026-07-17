@@ -3,11 +3,11 @@ import streamlit as st
 from shared.core import boot, layer_badge, stream_assistant
 from shared.slides import render_slides
 
-client = boot("Level 1 · Chatbot")
+client = boot("1 · Chatbot")
 
-st.title("Level 1 · Chatbot")
+st.title("1 · Chatbot")
 layer_badge([1, 3])
-st.caption("🧭 **Dimension 1 of 11 — context engineering:** behavior lives in the context, not the weights.")
+st.caption("🧭 **Context engineering:** behavior lives in the context, not the weights.")
 st.caption("A system prompt + one message. **No memory. No guardrails.** This is all a bare chatbot is.")
 render_slides("chatbot")
 
@@ -16,16 +16,16 @@ st.info(
     "one layer *inside* an app. The app's job is to assemble a request and send it to "
     "that model. The simplest possible app is just **two messages**:\n\n"
     "- a **system prompt** — your standing instructions that set the model's role, tone, "
-    "and rules (Layer 3, how you steer the model); and\n"
-    "- a **user prompt** — what the person types this turn (Layer 1, the experience).\n\n"
+    "and rules (how you steer the model); and\n"
+    "- a **user prompt** — what the person types this turn (the experience).\n\n"
     "Edit both below, hit Send, and open *“Exactly what is sent to the model”* — that "
     "tiny payload **is** the whole application.",
     icon="🧩",
 )
 
-sys = st.text_area("System prompt (Layer 3 — how you steer the model)",
+sys = st.text_area("System prompt (how you steer the model)",
                    "You are a helpful, concise assistant.", height=80)
-msg = st.text_input("Your message (Layer 1 — the user prompt / the experience)",
+msg = st.text_input("Your message (the user prompt / the experience)",
                     "Explain what a system prompt is, in one sentence.")
 
 if st.button("Send", type="primary"):
@@ -36,7 +36,7 @@ if st.button("Send", type="primary"):
     stream_assistant(client, messages, placeholder=st.empty())
     st.warning(
         "**What's missing — memory.** Send another message and it won't recall this one; "
-        "each request is independent. **➡️ Level 2 adds memory.** "
+        "each request is independent. **➡️ Next — Memory.** "
         "(Levels 2–6 then add memory, guardrails, grounding, tools, and governance.)"
     )
 

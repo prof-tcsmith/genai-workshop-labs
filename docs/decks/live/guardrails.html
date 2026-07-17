@@ -498,7 +498,7 @@ function ScopeGate() {
 }
 
 const TOPIC = {
-  kicker: "Level 3 · Guardrails · Layers 1, 3, 7",
+  kicker: "Guardrails · it will answer anything",
   slides: [
     { h: "Add guardrails: keep the assistant on-task and safe.",
       sub: "Scenario: scope a general bot down to “Northwind Cloud” support — nothing else." },
@@ -511,11 +511,11 @@ const TOPIC = {
         "Toggle the guardrail <b>off</b> and the same bot wanders off-task.",
       ] },
 
-    { h: "The two layers", tag: "soft vs hard",
+    { h: "The two guardrails", tag: "soft vs hard",
       bullets: [
         "<b>Guardrail 1</b> — a rule in the system prompt. Soft: a clever message can talk the model out of it.",
         "<b>Guardrail 2</b> — an independent classifier call that runs first and <b>fails closed</b>. A hard gate.",
-        "Layer them: the prompt sets intent, the gate enforces it.",
+        "Combine them: the prompt sets intent, the gate enforces it.",
       ],
       note: "A guardrail is partly “just a document in the prompt” — that's exactly why you also need a separate, fail-closed gate that can't be argued with." },
 
@@ -526,10 +526,10 @@ const TOPIC = {
 
     { h: "What this still can't do", tag: "the limit",
       warn: "It stays on-task, but it only knows what's in its prompt — no access to real product knowledge, so specific questions get vague or guessed answers.",
-      next: "Level 4 — Grounding & RAG" },
+      next: "Next — Grounding & RAG" },
 
     { h: "Why it matters", tag: "takeaway",
-      note: "Scope + a fail-closed gate are where governance (Layer 7) first shows up. Production layers them, plus input/output filters, tool RBAC, and approval gates (you'll see those at Level 7)." },
+      note: "Scope + a fail-closed gate are where governance first shows up. Production combines them, plus input/output filters, tool RBAC, and approval gates (you'll see those in Multi-agent & governance)." },
   ],
 };
 /* ====================== CONTENT END ====================== */

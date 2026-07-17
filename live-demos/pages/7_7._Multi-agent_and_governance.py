@@ -1,4 +1,4 @@
-"""Level 7 · Multi-agent (A2A) collaboration + governance.
+"""Multi-agent (A2A) collaboration + governance.
 
 Three specialised agents collaborate to handle a customer REFUND end-to-end,
 under explicit governance. Everything is OBSERVABLE in the UI:
@@ -28,14 +28,14 @@ from shared import mcp_client
 from shared.core import boot, chat, layer_badge, stream_assistant, tool_calls_to_message
 from shared.slides import render_slides
 
-client = boot("Level 7 · Multi-agent + governance")
+client = boot("7 · Multi-agent + governance")
 
-st.title("Level 7 · Multi-agent + governance")
+st.title("7 · Multi-agent + governance")
 layer_badge([2, 7])
-st.caption("🧭 **Dimensions 8, 10 & 11 of 11 — MCP-style integrations, logging, governance:** decoupled tools, an audit trail, least privilege.")
+st.caption("🧭 **MCP + A2A · logging · governance:** decoupled tools, an audit trail, least privilege.")
 st.caption(
-    "Multiple agents (Layer 2 orchestration) collaborate on a refund — calling their tools over a "
-    "**real MCP server** — but every step runs under governance (Layer 7): role-based tool access, a "
+    "Multiple agents collaborate on a refund — calling their tools over a "
+    "**real MCP server** — but every step runs under governance: role-based tool access, a "
     "human approval gate, and an append-only audit log."
 )
 render_slides("governance")
@@ -277,14 +277,14 @@ else:
 
 st.divider()
 st.info(
-    "**Takeaway:** specialised agents collaborate (Layer 2) and reach their tools over a standard "
+    "**Takeaway:** specialised agents collaborate and reach their tools over a standard "
     "**MCP** server (decoupled, swappable for a networked one) — but trust comes from governance "
-    "(Layer 7): least-privilege RBAC on every tool call, a human in the loop before any irreversible "
+    ": least-privilege RBAC on every tool call, a human in the loop before any irreversible "
     "action, and a complete audit trail."
 )
 st.warning(
     "**What's missing — it hasn't been adversarially tested.** Governance rules only "
     "help if they hold up under attack (prompt injection, data exfiltration, tricking an "
-    "agent into a write). **➡️ Level 8: Red-team & govern** attacks the system, then turns "
+    "agent into a write). **➡️ Take-home — Red-team & govern** attacks the system, then turns "
     "the controls on to stop it."
 )

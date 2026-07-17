@@ -1,26 +1,26 @@
-"""Level 3 · Guardrails — keep the assistant on-task and safe.
+"""Guardrails — keep the assistant on-task and safe.
 
-Builds on Level 2 (memory) and adds exactly ONE thing: GUARDRAILS. The bot is
+Builds on Memory and adds exactly ONE thing: GUARDRAILS. The bot is
 scoped to "Northwind Cloud" support, and every message passes a cheap,
 INDEPENDENT pre-flight scope check BEFORE the main model runs. Two layers:
   1. a rule written into the system prompt (soft — a clever message can bypass it), and
   2. an independent classifier call that fails closed (a hard gate).
 
 What's still missing: it stays on-task, but it only knows what's in its prompt —
-no access to real product knowledge. Level 4 grounds it with retrieval (RAG).
+no access to real product knowledge. Grounding with retrieval (RAG) comes next.
 """
 import streamlit as st
 
 from shared.core import boot, chat, layer_badge, stream_assistant
 from shared.slides import render_slides
 
-client = boot("Level 3 · Guardrails")
+client = boot("3 · Guardrails")
 
-st.title("Level 3 · Guardrails")
+st.title("3 · Guardrails")
 layer_badge([1, 3, 7])
-st.caption("🧭 **Dimension 3 of 11 — guardrails:** an independent check before the answer ships.")
+st.caption("🧭 **Guardrails:** an independent check before the answer ships.")
 st.caption(
-    "Add **guardrails** (Layer 7 governance) on top of memory: scope the bot to "
+    "Add **guardrails** (governance) on top of memory: scope the bot to "
     "Northwind Cloud support and screen every message with an **independent check** "
     "before the main model runs, so it stays on-task and safe."
 )
@@ -68,10 +68,10 @@ with st.expander("🛡️ The guardrails — what they actually are", expanded=T
     st.caption(
         "Guardrail 1 is 'just a document in the prompt' — necessary but bypassable. Guardrail 2 is a "
         "separate, fail-closed gate. Production systems layer both, plus input/output filters, tool "
-        "RBAC, and approval gates (see Level 6)."
+        "RBAC, and approval gates (see the agent-loop lab)."
     )
 
-# Memory carries over from Level 2's idea: we keep + replay the conversation.
+# Memory carries over from the previous lab's idea: we keep + replay the conversation.
 st.session_state.setdefault("gr_history", [])
 history: list[dict] = st.session_state["gr_history"]
 
@@ -118,7 +118,7 @@ st.divider()
 st.warning(
     "**What's missing — real knowledge.** It stays on-task, but it only knows what's "
     "in its prompt; ask for a specific fact (your exact refund window, a feature detail) "
-    "and it gets vague or guesses. **➡️ Level 4 grounds it in real content with retrieval (RAG).**"
+    "and it gets vague or guesses. **➡️ Next — Grounding & RAG puts it on real content.**"
 )
 st.caption(
     "Try it: ask a Northwind question, then a follow-up ('and how do I undo that?') — memory "
