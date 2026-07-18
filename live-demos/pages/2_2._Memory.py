@@ -42,21 +42,28 @@ with app:
         height=70,
     )
 
-    # Render the conversation so far.
-    for turn in history:
-        with st.chat_message(turn["role"]):
-            st.markdown(turn["content"])
-
+    # The conversation renders into this container, which is created BEFORE the
+    # input — so every turn, including the streaming reply, lands ABOVE the box
+    # you type in. (Without this, new turns render after the input in script
+    # order and end up below it.)
+    convo = st.container()
     prompt = st.chat_input("Chat — then ask a follow-up that refers back to what you said…")
-    if prompt:
-        history.append({"role": "user", "content": prompt})
-        with st.chat_message("user"):
-            st.markdown(prompt)
-        with st.chat_message("assistant"):
-            # MEMORY in action: send the system prompt + the FULL history every turn.
-            messages = [{"role": "system", "content": system_prompt}] + history
-            answer, _ = stream_assistant(client, messages, placeholder=st.empty())
-        history.append({"role": "assistant", "content": answer})
+
+    with convo:
+        # The conversation so far.
+        for turn in history:
+            with st.chat_message(turn["role"]):
+                st.markdown(turn["content"])
+
+        if prompt:
+            history.append({"role": "user", "content": prompt})
+            with st.chat_message("user"):
+                st.markdown(prompt)
+            with st.chat_message("assistant"):
+                # MEMORY in action: send the system prompt + the FULL history every turn.
+                messages = [{"role": "system", "content": system_prompt}] + history
+                answer, _ = stream_assistant(client, messages, placeholder=st.empty())
+            history.append({"role": "assistant", "content": answer})
 
     # Reset lives at the bottom of the app, out of the way of the conversation.
     if st.button("🧹 Clear conversation"):
