@@ -74,33 +74,27 @@ def _openai_embed_key() -> str | None:
     return pasted or _secret("openai_api_key") or os.environ.get("OPENAI_API_KEY")
 
 
-# Today's route: the seven labs of the 60-minute hands-on hour, in five groups.
-# This is the ONLY
-# navigation shown (auto page nav is off in .streamlit/config.toml); other levels
-# stay deployed but unlisted.
+# Today's route: the seven labs of the 60-minute hands-on hour — one lab per
+# page, numbered exactly as the handout sheets. This is the ONLY navigation
+# shown (auto page nav is off in .streamlit/config.toml); other pages stay
+# deployed but unlisted.
 ROUTE_NAV = [
-    ("Labs 1–2 · A model becomes an app",
-     [("pages/1_1._Chatbot.py", "1 · Chatbot"), ("pages/2_2._Memory.py", "2 · Memory")]),
-    ("Lab 3 · It will answer anything",
-     [("pages/3_3._Guardrails.py", "3 · Guardrails")]),
-    ("Labs 4–5 · Ground it — then break it",
-     [("pages/4_4._Grounding_and_RAG.py", "4 · Grounding & RAG"),
-      ("pages/5_5._Build_and_break_a_RAG.py", "5 · Build & break a RAG")]),
-    ("Lab 6 · It knows, but can't act",
-     [("pages/6_6._Tools_and_the_agent_loop.py", "6 · Tools & the agent loop")]),
-    ("Lab 7 · Agents over MCP + A2A",
-     [("pages/7_7._Multi-agent_and_governance.py", "7 · Multi-agent & governance")]),
+    ("pages/1_1._Chatbot.py", "1 · Chatbot"),
+    ("pages/2_2._Memory.py", "2 · Memory"),
+    ("pages/3_3._Guardrails.py", "3 · Guardrails"),
+    ("pages/4_4._Grounding_and_RAG.py", "4 · Grounding & RAG"),
+    ("pages/5_5._Build_and_break_a_RAG.py", "5 · Build & break a RAG"),
+    ("pages/6_6._Tools_and_the_agent_loop.py", "6 · Tools & the agent loop"),
+    ("pages/7_7._Multi-agent_and_governance.py", "7 · Multi-agent & governance"),
 ]
 
 
 def render_route_sidebar() -> None:
-    """Sidebar nav: home + the seven labs (grouped by sheet), nothing else."""
+    """Sidebar nav: home + the seven labs, nothing else."""
     with st.sidebar:
         st.page_link("app.py", label="🧱 Home — today's route")
-        for stop, pages in ROUTE_NAV:
-            st.markdown(f"**{stop}**")
-            for path, label in pages:
-                st.page_link(path, label=label)
+        for path, label in ROUTE_NAV:
+            st.page_link(path, label=label)
         st.divider()
 
 

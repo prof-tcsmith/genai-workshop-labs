@@ -16,13 +16,15 @@ sidebar, or put it in a gitignored local file.
 
 ## Summary — the seven labs
 
-Each stage breaks the one before it — a working system, then the failure that forces the next piece. A **lab** is one app page (the sidebar's own numbering); the five sheets in the handout each cover one or two labs.
+Each lab breaks the one before it — a working system, then the failure that forces the next piece. A **lab** is one app page (the sidebar's own numbering), and each lab has its own two-page sheet in the handout.
 
 | Lab | What you'll see |
 |---|---|
-| 1–2 · A model becomes an app | a system prompt + one message — no memory, no guardrails — then the bot remembers the conversation (history replayed each turn); context + memory |
+| 1 · A model becomes an app | a system prompt + one message — the whole app is two messages; behavior lives in the context, and the model sees one token stream, not your JSON |
+| 2 · It forgets your last sentence | the same bot with memory: the history replayed each turn — follow-ups work, and the prompt grows every turn |
 | 3 · It will answer anything | a support bot with a fail-closed scope check you can watch fire; guardrails |
-| 4–5 · Ground it — then break it | model-alone vs. grounded + cited answers over a small corpus; then sabotage chunking / staleness / permissions and watch quality collapse |
+| 4 · Ground it in your documents | model-alone vs. grounded + cited answers over a small corpus — or an honest abstain |
+| 5 · Then break it | sabotage chunking / staleness / permissions and watch quality collapse, model untouched |
 | 6 · It knows, but can't act | an agent calls tools in a plan→act→observe loop, with a human approval gate |
 | 7 · Agents over MCP + A2A | agents collaborate under RBAC, an approval gate, and an audit log |
 
@@ -103,9 +105,11 @@ In the live demos, **pick a provider and paste the key** in the left sidebar (un
 `.env`), then use the sidebar to work through the **seven labs in order** — each stage breaks the one before.
 
 ### 5. What to try in each lab
-- **Labs 1–2 — A model becomes an app (Chatbot + Memory):** change the system prompt (e.g., "answer only in haiku"), resend; note it has no memory. Then ask a question, then a follow-up that depends on it — now it remembers.
+- **Lab 1 — A model becomes an app (Chatbot):** change the system prompt (e.g., "answer only in haiku") and resend — same model, new behavior. Compare the two Under-the-hood panels: JSON to the API vs. the one token stream the model continues.
+- **Lab 2 — It forgets your last sentence (Memory):** ask a question, then a follow-up that depends on it — now it remembers; watch the memory panel grow each turn.
 - **Lab 3 — It will answer anything (Guardrails):** ask an on-topic question, then something off-topic with the guardrail ON vs OFF.
-- **Labs 4–5 — Ground it, then break it (Grounding & RAG):** ask a policy question; compare the model-alone answer with the grounded, cited one. Then flip the sabotage switches (tiny chunks / stale doc / restricted doc) and watch quality fall.
+- **Lab 4 — Ground it in your documents (Grounding & RAG):** ask a policy question; compare the model-alone answer with the grounded, cited one — then ask something the corpus can't answer and watch it abstain.
+- **Lab 5 — Then break it (Build & break a RAG):** flip the sabotage switches (tiny chunks / stale doc / restricted doc) and watch quality fall with the model untouched.
 - **Lab 6 — It knows, but can't act (Tools & the agent loop):** run a task that needs a tool; watch the plan→call→observe trace and the approval gate.
 - **Lab 7 — Agents over MCP + A2A (Multi-agent & governance):** run the refund workflow; approve/deny the gated action; read the audit log.
 - **Take-home — Red-team & govern:** run an attack preset, then enable controls one at a time and watch defense-in-depth hold.

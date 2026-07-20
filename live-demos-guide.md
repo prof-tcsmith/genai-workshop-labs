@@ -49,11 +49,15 @@ Open **http://localhost:8501**, paste the OpenAI key in the sidebar, and walk La
 
 ## 4. Running each lab live (what to point out)
 
-**Labs 1–2 — A model becomes an app (Chatbot → Memory).** On *Chatbot*, send a message; the **Under the hood** panel shows the two views side by side — (1) the JSON `messages[]` your app sends to the API vs. (2) the single flattened token stream the model actually continues. Change the system prompt ("answer only in haiku") and resend; then send a follow-up and note it has *no memory*. On *Memory*, the same idea plus the conversation history replayed each turn — a follow-up like "and how do I undo that?" now works (point at the Memory panel below the app). Takeaway: an app is configuration over a model call; memory is that history, re-sent every turn (and it isn't free).
+**Lab 1 — A model becomes an app (Chatbot).** Send a message; the **Under the hood** panel shows the two views side by side — (1) the JSON `messages[]` your app sends to the API vs. (2) the single flattened token stream the model actually continues. Change the system prompt ("answer only in haiku") and resend; then send a follow-up and note it has *no memory*. Takeaway: an app is configuration over a model call — behavior lives in the context.
+
+**Lab 2 — It forgets your last sentence (Memory).** The same bot plus the conversation history replayed each turn — a follow-up like "and how do I undo that?" now works (point at the Memory panel below the app, and watch it grow). Takeaway: memory is the history, re-sent every turn — and it isn't free.
 
 **Lab 3 — It will answer anything (Guardrails).** The bot is scoped to Northwind support. Ask a Northwind question, then ask something off-topic ("write me a poem") with **guardrails ON** (an independent pre-flight check blocks it) vs **OFF** (it wanders). Invite attendees to sneak past it. Takeaway: a scoped prompt isn't enough — you add a separate check, and governance starts here.
 
-**Labs 4–5 — Ground it, then break it (Grounding & RAG → Build & break a RAG).** On *Grounding & RAG*, ask "how long do enterprise customers have for a refund?" Show the retrieved chunks, then the **assembled prompt** (the engineered context), then the grounded, cited answer; tick "show the ungrounded answer" to contrast. On *Build & break a RAG*, use the sliders to sabotage chunking / stale docs / a permission leak and watch quality collapse with the model untouched. Takeaway: most RAG failures are **data** failures.
+**Lab 4 — Ground it in your documents (Grounding & RAG).** Ask "how long do enterprise customers have for a refund?" Show the retrieved chunks, then the two answers side by side — model-alone (fluent, unverifiable) vs. grounded + cited. Ask something the corpus can't answer and watch it abstain. Takeaway: the trust difference is the context you assemble.
+
+**Lab 5 — Then break it (Build & break a RAG).** Use the sliders to sabotage chunking / stale docs / a permission leak and watch quality collapse with the model untouched. Takeaway: most RAG failures are **data** failures.
 
 **Lab 6 — It knows, but can't act (Tools & the agent loop).** Run "Is order 4471 within the refund window?" Watch the agent loop (plan → call a tool → observe), then the irreversible write held at a **human approval gate** — approve, deny, or let it run autonomously. Takeaway: adding a capability is adding a *tool*, with the risky action gated by a human.
 
