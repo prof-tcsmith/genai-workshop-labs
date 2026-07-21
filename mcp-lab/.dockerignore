@@ -1,0 +1,11 @@
+# Never bake secrets into the image — keys arrive at runtime via env.
+# (This server needs no key today; the guard is here so a future .env
+# can't ride in through COPY . . )
+.env
+.streamlit/secrets.toml
+**/__pycache__
+*.pyc
+.venv/
+venv/
+.git
+.DS_Store

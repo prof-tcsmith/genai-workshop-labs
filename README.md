@@ -46,5 +46,6 @@ Stop with **Ctrl-C**; `docker compose down` to remove the containers.
 
 - `attendee-guide.pdf` — one-pager for participants.
 - `live-demos-guide.pdf` — facilitator setup & management for the live demos.
+- `BUILD-IT-YOURSELF.md` — one prompt per lab: paste into Claude Code to rebuild each lab, bare-bones.
 - `workshop-companion.pdf` — expanded notes for every slide in the deck.
 - `DEPLOY.md` — how to host the labs (Streamlit Community Cloud + GitHub Pages).
