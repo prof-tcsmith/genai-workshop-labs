@@ -46,9 +46,10 @@ if send:
 try_this(
     "Replace the system prompt with **“Answer only in haiku.”** and Send again. Same model, "
     "same question — completely different behaviour. You *steered* it; nothing was retrained.",
-    "Now send a follow-up that depends on the last answer, like **“explain that to a "
-    "five-year-old.”** It has no idea what *that* refers to — **there is no memory**, only the "
-    "two messages you see below.",
+    "Tell it **“My name is …”** (your name) and Send. Now replace the message with **“What is "
+    "my name?”** and Send again. It has no idea — **there is no memory**: each Send is a "
+    "brand-new request containing only the two messages you see below. Remember this experiment "
+    "— Lab 2 reruns it.",
     "Empty the system prompt entirely and resend. Notice how much of the “assistant "
     "personality” was just that one paragraph of text.",
     "Set the system prompt to **“You are a pirate. Never break character.”**, then in the "
