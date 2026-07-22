@@ -264,6 +264,7 @@ def render_backend_badge(handle: dict | None = None) -> None:
             "🧠 **In-memory (NumPy)** — a Pinecone key is set but Pinecone was unavailable, "
             "so this session fell back to RAM. The lab still works identically."
         )
+        st.caption(f"↳ Pinecone error: `{st.session_state['_rag_pc_broke']}`")
     elif handle and handle.get("backend") == "pinecone":
         st.caption(
             f"🌲 **Real vector DB — Pinecone** · index `{handle['index']}` · your namespace "
