@@ -1,4 +1,4 @@
-# Northwind Cloud — Refund Policy (v3)
+# Northwind Cloud — Refund Policy
 
 Enterprise customers may request a refund within **45 days** of the order date.
 Standard (non-enterprise) customers have a **30-day** refund window.

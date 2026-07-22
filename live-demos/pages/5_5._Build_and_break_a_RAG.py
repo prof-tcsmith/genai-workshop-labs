@@ -28,7 +28,7 @@ k = c3.slider("Top-k retrieved", 1, 6, 3)
 st.markdown("**Break it** — flip a switch, rebuild, and see what happens:")
 b1, b2, b3 = st.columns(3)
 tiny = b1.checkbox("Tiny chunks (size 80)", help="Fragments rules across chunks so retrieval misses the full answer.")
-stale = b2.checkbox("Add a conflicting 'stale' policy", help="Injects an outdated doc that contradicts the current one.")
+stale = b2.checkbox("Add a conflicting 'stale' policy", help="Injects a second refund policy with different numbers — and, like real stale data, nothing in it says it's outdated.")
 leak = b3.checkbox("Include the RESTRICTED doc", help="Simulates a permission leak: a doc the user shouldn't see enters retrieval.")
 
 q = st.text_input("Question", "What is the enterprise refund window?")
@@ -40,9 +40,15 @@ if st.button("Build index & answer", type="primary"):
     if leak and "security_notes_RESTRICTED" in corpus_all:
         docs["security_notes_RESTRICTED"] = corpus_all["security_notes_RESTRICTED"]
     if stale:
-        docs["refund_policy_OLD"] = (
-            "# Old Refund Policy (v1)\n\nAll customers have a 14-day refund window. "
-            "There is no enterprise exception and no manager approval is required."
+        # A drifted second copy of the SAME policy (e.g. an internal wiki page) with
+        # different numbers. Deliberately symmetric with the real doc — same title,
+        # NO "old"/version marker — because real stale data isn't labeled as stale.
+        # That's the whole point: nothing in either document says which is current.
+        docs["refund_policy_wiki"] = (
+            "# Northwind Cloud — Refund Policy\n\n"
+            "Enterprise customers may request a refund within 14 days of the order date. "
+            "Standard (non-enterprise) customers have a 7-day refund window. "
+            "Refunds do not require manager approval."
         )
 
     if not docs:
@@ -55,7 +61,7 @@ if st.button("Build index & answer", type="primary"):
     ragstore.render_backend_badge(index)
     context = "\n\n".join(f"[{d['doc']}] {d['text']}" for d, _ in hits)
     msgs = [
-        {"role": "system", "content": "Answer ONLY from the provided context. If sources conflict, say so and name them. Quote the source you used."},
+        {"role": "system", "content": "Answer ONLY from the provided context. If two sources give DIFFERENT values for the same thing, you MUST report BOTH values and state that the sources conflict — do NOT silently pick one. Quote the sources you used."},
         {"role": "user", "content": f"Context:\n{context}\n\nQuestion: {q}"},
     ]
     ans = chat(client, msgs).choices[0].message.content
@@ -71,8 +77,8 @@ if st.button("Build index & answer", type="primary"):
     # diagnostics
     if leak and any(d["doc"] == "security_notes_RESTRICTED" for d, _ in hits):
         st.error("⚠️ **Permission leak** — a RESTRICTED document was retrieved and fed to the model. In production this is a real data-leak path: retrieval must enforce the same permissions as the source system.")
-    if stale and any("OLD" in d["doc"] for d, _ in hits):
-        st.warning("**Conflicting / stale source retrieved** — watch the answer flip or hedge. Freshness and de-duplication are data-engineering problems, not model problems.")
+    if stale and any(d["doc"] == "refund_policy_wiki" for d, _ in hits):
+        st.warning("**Conflicting / stale source retrieved** — the answer now names two different windows (45 vs 14 days) because nothing in the data says which is current. Freshness and de-duplication are data-engineering problems, not model problems.")
     if tiny:
         st.warning("**Tiny chunks** fragment the policy, so a single chunk rarely contains the whole rule. Chunking is a design decision.")
 
@@ -81,8 +87,9 @@ try_this(
     "and the chunks it retrieved. This is your control.",
     "Tick **Tiny chunks (size 80)** and rebuild. The rule gets fragmented across chunks, so no "
     "single chunk carries the whole answer. *You changed a number, not the model.*",
-    "Untick that, tick **Add a conflicting 'stale' policy**, rebuild. Watch the answer flip or "
-    "hedge — the model has no way to know which document is current.",
+    "Untick that, tick **Add a conflicting 'stale' policy**, rebuild. The answer now hedges and "
+    "names *both* windows (45 days and 14 days) — nothing in the data says which document is "
+    "current, so the model can't either.",
     "Untick, then tick **Include the RESTRICTED doc**. Content the user should never see is now "
     "in the answer. That is a permissions bug reaching the user through retrieval.",
     "Turn on two at once. Failures compound, and the answer still reads perfectly fluent — which "
