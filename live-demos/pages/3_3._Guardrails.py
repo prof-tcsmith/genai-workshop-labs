@@ -119,9 +119,9 @@ st.markdown(
     "So this demo also adds an **independent check** that runs *before* the main model."
 )
 st.markdown("**Guardrail 1 — a rule in the system prompt** (an instruction the model is asked to follow):")
-st.code(SYSTEM_PROMPT, language="text")
+st.code(SYSTEM_PROMPT, language="text", wrap_lines=True)
 st.markdown("**Guardrail 2 — an independent scope check** (a *separate* model call that runs first and can block the message before the main model ever sees it):")
-st.code(SCOPE_CHECK_PROMPT, language="text")
+st.code(SCOPE_CHECK_PROMPT, language="text", wrap_lines=True)
 st.caption(
     "Guardrail 1 is 'just a document in the prompt' — necessary but bypassable. Guardrail 2 is a "
     "separate, fail-closed gate. Production systems layer both, plus input/output filters, tool "

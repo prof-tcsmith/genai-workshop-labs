@@ -83,6 +83,7 @@ with right:
         "<|start_header_id|>assistant<|end_header_id|>\n"
         "▮  ← the model continues from here, one token at a time",
         language="text",
+        wrap_lines=True,
     )
     st.caption(
         "Server-side the provider flattens that JSON into **one flat token sequence** using a "

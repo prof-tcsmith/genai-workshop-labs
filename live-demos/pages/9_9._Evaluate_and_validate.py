@@ -194,7 +194,7 @@ if st.button("Judge a sample answer"):
         st.markdown(f"**Question:** {esc(q)}")
         st.markdown(f"**Answer being graded:** _{esc(ans.strip())}_")
         with st.expander("📄 Source the judge grades the answer against"):
-            st.code(ctx[:900] or "(none)")
+            st.code(ctx[:900] or "(none)", wrap_lines=True)
         verdict = chat(client, jmsgs, max_tokens=120).choices[0].message.content or ""
         grounded = "not grounded" not in verdict.lower() and "grounded" in verdict.lower()
         (st.success if grounded else st.error)(f"**Judge's verdict:** {esc(verdict.strip())}")
