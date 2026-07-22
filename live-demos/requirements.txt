@@ -7,6 +7,7 @@ anthropic>=0.40
 numpy>=1.26
 mcp>=1.2
 pinecone>=5.0
+psycopg[binary]>=3.1
 # rebuild-stamp: v1.4.4 — try_this() added to shared/core (2026-07-18)
 
-# cache-bust: 2026-07-22c chunker overlap cap + embed batching (Lab 5 tiny chunks fix)
+# cache-bust: 2026-07-23 Lab 6 Neon order store (orderstore.py; +psycopg)

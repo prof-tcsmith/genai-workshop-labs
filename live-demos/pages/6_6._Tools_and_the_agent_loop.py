@@ -21,7 +21,7 @@ import operator
 
 import streamlit as st
 
-from shared import store
+from shared import orderstore, store
 from shared.core import boot, chat, layer_badge, try_this
 from shared.slides import render_slides
 
@@ -37,11 +37,9 @@ st.caption(
 )
 render_slides("tools-agent-loop")
 
-# --- Mock enterprise data the tools reach into ------------------------------
-MOCK_ORDERS = {
-    "4471": {"placed_days_ago": 12, "status": "delivered", "amount": 240.0, "customer_type": "enterprise"},
-    "5012": {"placed_days_ago": 60, "status": "delivered", "amount": 90.0, "customer_type": "standard"},
-}
+# The order system the tools reach into lives in shared/orderstore.py — a real
+# Neon Postgres when a database_url is set, otherwise a built-in seed. The seed
+# orders (4471, 5012) are orderstore.SEED_ORDERS.
 
 # Safe arithmetic: an allow-list of AST node types -> operations. No eval().
 _BIN_OPS = {
@@ -153,8 +151,10 @@ class ToolServer:
 
     # --- The actual tool implementations -------------------------------------
     def _get_order(self, order_id: str) -> dict:
-        order = MOCK_ORDERS.get(str(order_id).strip())
-        if order is None:
+        # Reads Neon Postgres when configured, else the built-in seed (orderstore
+        # handles the fallback). Same shape either way.
+        order = orderstore.get_order(order_id)
+        if "error" in order:
             return {"error": f"no order found with id {order_id!r}"}
         return {"order_id": str(order_id).strip(), **order}
 
@@ -183,8 +183,10 @@ class ToolServer:
             return {"expression": expression, "error": str(e)}
 
     def _issue_refund(self, order_id: str, amount: float) -> dict:
-        # Mock side effect — in a real system this would hit billing.
-        return {"status": "refunded", "order_id": str(order_id).strip(), "amount": amount}
+        # The real, gated write: records a refund row in Neon (tagged to this
+        # session) when configured, else an in-memory success. This is what the
+        # human approval protects.
+        return orderstore.issue_refund(order_id, amount)
 
     def call_tool(self, name: str, args: dict) -> dict:
         """Dispatch a tool call from the client to the right implementation."""
@@ -209,6 +211,8 @@ for spec in TOOLS:
     fn = spec["function"]
     tag = "✍️ **write**" if server.is_write(fn["name"]) else "🔧 read"
     st.markdown(f"- {tag} · **`{fn['name']}`** — {fn['description']}")
+
+orderstore.render_backend_badge()
 
 st.divider()
 
@@ -327,6 +331,9 @@ if st.button("Run agent", type="primary"):
         "status": "running",
     }
     _run_loop(st.session_state["agent6"])
+    # Re-run top-to-bottom so the backend badge (rendered above) and the refunds
+    # panel reflect the post-loop state — e.g. a fall-back to in-memory mid-run.
+    st.rerun()
 
 state = st.session_state.get("agent6")
 if state:
@@ -390,6 +397,18 @@ if state:
                 "on and re-run to see the loop pause for a human."
             )
 
+    # --- What actually got written (the real, gated side effect) -------------
+    _refunds = orderstore.session_refunds()
+    if _refunds:
+        st.subheader("💾 Refunds written to the database — this session")
+        st.caption("Rows your approvals actually created in Neon Postgres — the irreversible "
+                   "write the gate protects. Isolated to your session.")
+        st.dataframe(
+            [{"order_id": r["order_id"], "amount": float(r["amount"]),
+              "written_at (UTC)": r["created_at"].strftime("%H:%M:%S")} for r in _refunds],
+            hide_index=True, use_container_width=True,
+        )
+
     # --- The transcript, for the curious -------------------------------------
     with st.expander("🔎 Full trace (every plan / call / observed result)"):
         st.json(state["trace"])
@@ -404,7 +423,8 @@ try_this(
     "It stops at the **approval gate** before the refund. Click **Deny** and re-read the trace: "
     "the write simply never happened. The gate is code, not a promise in the prompt.",
     "Run it again and **Approve**. Same loop, same reasoning — the only difference is a human "
-    "said yes to that exact tool call with those exact arguments.",
+    "said yes. Now a **real refund row appears** in the *Refunds written* panel (a live Neon "
+    "Postgres write, when a database is connected) — that's the irreversible action the gate guards.",
     "Now switch the approval toggle **off** and re-run. It completes with no pause at all. That "
     "is the autonomy dial: you just moved it, and nothing warned you.",
     "Change the goal to something with **no matching tool** — e.g. *“cancel the customer's "
